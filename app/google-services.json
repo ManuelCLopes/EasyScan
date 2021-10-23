@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "493988211224",
+    "project_id": "easyscan-3ae24",
+    "storage_bucket": "easyscan-3ae24.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:493988211224:android:f3ef509674f49c5540b16d",
+        "android_client_info": {
+          "package_name": "com.sidm.easyscan"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "493988211224-o5g2dg5cspfc30n8r88m49fdqbm3or8p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sidm.easyscan",
+            "certificate_hash": "10d38f770482e4869ca8d7dd3029971ba20d0c29"
+          }
+        },
+        {
+          "client_id": "493988211224-4l3kph59hfra1gts2hjc1obhuibgemsv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOc_4BaG_XDRa5qxiDKo3Lu6gAm4G5_ts"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "493988211224-4l3kph59hfra1gts2hjc1obhuibgemsv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
