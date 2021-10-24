@@ -66,6 +66,7 @@
     <string name="main_menu_chat">Chat</string>
     <string name="main_menu_about">About</string>
     <string name="uploadButton">Upload</string>
+    <string name="messages_input_hint">teste</string>
 
 
 </resources>

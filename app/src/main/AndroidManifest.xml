@@ -20,7 +20,7 @@
             android:value="ocr" />
         <!-- To use multiple models: android:value="ocr,model2,model3" -->
 
-        <activity android:name=".presentation.ui.LoginActivity"
+        <activity android:name="com.sidm.easyscan.presentation.presentation.ui.LoginActivity"
             android:theme="@style/Theme.EasyScan.NoActionBar"
             android:exported="true">
 
@@ -31,7 +31,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".presentation.ui.MainActivity" />
+        <activity android:name="com.sidm.easyscan.presentation.presentation.ui.MainActivity" />
     </application>
 
 </manifest>

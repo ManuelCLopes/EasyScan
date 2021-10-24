@@ -1,4 +1,4 @@
-package com.sidm.easyscan.presentation
+package com.sidm.easyscan.presentation.presentation
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel

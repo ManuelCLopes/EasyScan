@@ -1,11 +1,11 @@
-package com.sidm.easyscan.presentation.ui
+package com.sidm.easyscan.presentation.presentation.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.sidm.easyscan.R
-import com.sidm.easyscan.presentation.ui.fragments.*
+import com.sidm.easyscan.presentation.presentation.ui.fragments.*
 
 class MainActivity : AppCompatActivity() {
 

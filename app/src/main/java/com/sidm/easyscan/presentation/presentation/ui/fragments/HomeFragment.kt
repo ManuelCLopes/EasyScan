@@ -1,4 +1,4 @@
-package com.sidm.easyscan.presentation.ui.fragments
+package com.sidm.easyscan.presentation.presentation.ui.fragments
 
 import android.Manifest
 import android.content.Intent
@@ -19,24 +19,16 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
-import java.io.File
-import android.graphics.Point
-import android.graphics.Rect
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.app
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-import java.util.*
 import com.sidm.easyscan.R
-import java.net.URI
 import java.sql.Timestamp
 
 

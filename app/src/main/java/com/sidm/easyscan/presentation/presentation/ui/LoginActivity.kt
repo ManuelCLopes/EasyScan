@@ -1,4 +1,4 @@
-package com.sidm.easyscan.presentation.ui
+package com.sidm.easyscan.presentation.presentation.ui
 
 import android.app.Activity
 import android.content.Intent

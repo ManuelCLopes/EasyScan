@@ -1,4 +1,4 @@
-package com.sidm.easyscan.presentation.ui.fragments
+package com.sidm.easyscan.presentation.presentation.ui.fragments
 
 import android.os.CountDownTimer
 import androidx.lifecycle.MutableLiveData
