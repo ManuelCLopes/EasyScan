@@ -16,8 +16,10 @@
         <entry key="..\:/Users/manuc/AndroidStudioProjects/EasyScan/app/src/main/res/drawable/ic_send.xml" value="0.2175925925925926" />
         <entry key="..\:/Users/manuc/AndroidStudioProjects/EasyScan/app/src/main/res/layout/activity_details.xml" value="0.13020833333333334" />
         <entry key="..\:/Users/manuc/AndroidStudioProjects/EasyScan/app/src/main/res/layout/activity_login.xml" value="0.13020833333333334" />
+        <entry key="..\:/Users/manuc/AndroidStudioProjects/EasyScan/app/src/main/res/layout/activity_main.xml" value="0.1" />
         <entry key="..\:/Users/manuc/AndroidStudioProjects/EasyScan/app/src/main/res/layout/fragment_chat.xml" value="0.192481884057971" />
         <entry key="..\:/Users/manuc/AndroidStudioProjects/EasyScan/app/src/main/res/layout/fragment_home.xml" value="0.1265625" />
+        <entry key="..\:/Users/manuc/AndroidStudioProjects/EasyScan/app/src/main/res/layout/item_document.xml" value="0.2817028985507246" />
         <entry key="..\:/Users/manuc/AndroidStudioProjects/EasyScan/app/src/main/res/layout/item_message_incoming.xml" value="0.192481884057971" />
       </map>
     </option>

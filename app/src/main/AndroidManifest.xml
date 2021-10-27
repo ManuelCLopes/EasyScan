@@ -13,14 +13,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:requestLegacyExternalStorage="true"
-        android:theme="@style/Theme.EasyScan">
+        android:theme="@style/Theme.EasyScan"
+        android:allowBackup="false">
 
         <meta-data
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"
             android:value="ocr" />
         <!-- To use multiple models: android:value="ocr,model2,model3" -->
 
-        <activity android:name="com.sidm.easyscan.presentation.presentation.ui.LoginActivity"
+        <activity android:name="com.sidm.easyscan.presentation.ui.LoginActivity"
             android:theme="@style/Theme.EasyScan.NoActionBar"
             android:exported="true">
 
@@ -31,7 +32,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.sidm.easyscan.presentation.presentation.ui.MainActivity" />
+        <activity android:name="com.sidm.easyscan.presentation.ui.MainActivity" />
     </application>
 
 </manifest>
