@@ -1,7 +1,9 @@
 package com.sidm.easyscan.presentation.adapters
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.RelativeLayout
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -10,6 +12,11 @@ import com.bumptech.glide.request.RequestOptions
 import com.sidm.easyscan.R
 import com.sidm.easyscan.data.model.DocumentDTO
 import com.sidm.easyscan.databinding.ItemDocumentBinding
+import android.content.Intent
+import android.os.Bundle
+import com.sidm.easyscan.presentation.ui.DetailsActivity
+import com.sidm.easyscan.presentation.ui.MainActivity
+
 
 class DocumentsAdapter : ListAdapter<DocumentDTO, DocumentsAdapter.MessagesViewHolder>(DiffCallback()) {
 
@@ -42,6 +49,7 @@ class DocumentsAdapter : ListAdapter<DocumentDTO, DocumentsAdapter.MessagesViewH
         constructor(itemBinding: ItemDocumentBinding) :
 
         RecyclerView.ViewHolder(itemBinding.root) {
+
             private var bindingIncoming: ItemDocumentBinding? = itemBinding
 
             private val requestOptions = RequestOptions()
@@ -55,7 +63,15 @@ class DocumentsAdapter : ListAdapter<DocumentDTO, DocumentsAdapter.MessagesViewH
                     .into(bindingIncoming?.imageView!!)
                 bindingIncoming?.tvUser?.text = documentDTO.user
                 bindingIncoming?.tvContent?.text = documentDTO.timestamp
+            }
 
+            init {
+                itemView.findViewById<RelativeLayout>(R.id.ll_message_container) .setOnClickListener {
+                    Log.w("TAG", "blablabla")
+                    val b = Bundle()
+                    b.putString("doc", bindingIncoming?.tvContent?.text.toString()) //Your id
+                    //MainActivity.startActivity(Intent(itemView.context, DetailsActivity::class.java).putExtras(b))
+                }
             }
         }
 
