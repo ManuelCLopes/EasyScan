@@ -15,14 +15,14 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.sidm.easyscan.R
 import com.sidm.easyscan.data.model.DocumentDTO
-import com.sidm.easyscan.databinding.FragmentChatBinding
+import com.sidm.easyscan.databinding.FragmentRepositoryBinding
 import com.sidm.easyscan.presentation.adapters.DocumentsAdapter
 
 private const val TAG = "AboutFragment"
 
 class AboutFragment : Fragment(){
 
-    private lateinit var binding: FragmentChatBinding
+    private lateinit var binding: FragmentRepositoryBinding
 
 
     override fun onCreateView(
@@ -30,7 +30,7 @@ class AboutFragment : Fragment(){
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentChatBinding.inflate(layoutInflater)
+        binding = FragmentRepositoryBinding.inflate(layoutInflater)
         return binding.root
     }
 

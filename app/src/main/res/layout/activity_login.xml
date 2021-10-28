@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    android:background="@color/colorPrimaryMain">
+    android:background="@color/dark_purple">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,7 +18,8 @@
             android:layout_height="100dp"
             android:layout_marginTop="50dp"
             android:contentDescription="@string/description_logo"
-            app:srcCompat="@drawable/ic_paw" />
+            app:srcCompat="@drawable/ic_camera"
+            app:tint="@color/white" />
 
         <TextView
             android:id="@+id/tv_app_name"

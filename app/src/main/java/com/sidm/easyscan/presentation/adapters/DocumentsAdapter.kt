@@ -14,6 +14,8 @@ import com.sidm.easyscan.data.model.DocumentDTO
 import com.sidm.easyscan.databinding.ItemDocumentBinding
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
 import com.sidm.easyscan.presentation.ui.DetailsActivity
 import com.sidm.easyscan.presentation.ui.MainActivity
 
@@ -53,8 +55,8 @@ class DocumentsAdapter : ListAdapter<DocumentDTO, DocumentsAdapter.MessagesViewH
             private var bindingIncoming: ItemDocumentBinding? = itemBinding
 
             private val requestOptions = RequestOptions()
-                .placeholder(R.drawable.ic_launcher_background)
-                .error(R.drawable.ic_launcher_background)
+                .placeholder(R.drawable.ic_dummy)
+                .error(R.drawable.ic_dummy)
 
             fun bind(documentDTO: DocumentDTO) {
                 Glide.with(itemView.context)
@@ -67,7 +69,11 @@ class DocumentsAdapter : ListAdapter<DocumentDTO, DocumentsAdapter.MessagesViewH
 
             init {
                 itemView.findViewById<RelativeLayout>(R.id.ll_message_container) .setOnClickListener {
-                    Log.w("TAG", "blablabla")
+                    Toast.makeText(
+                        itemView.context,
+                        "TODO: Implement details screen",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     val b = Bundle()
                     b.putString("doc", bindingIncoming?.tvContent?.text.toString()) //Your id
                     //MainActivity.startActivity(Intent(itemView.context, DetailsActivity::class.java).putExtras(b))

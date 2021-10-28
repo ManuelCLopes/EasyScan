@@ -67,6 +67,9 @@
     <string name="main_menu_about">About</string>
     <string name="uploadButton">Upload</string>
     <string name="messages_input_hint">teste</string>
+    <string name="floatingButtonCamera">Take a photo</string>
+    <string name="copy_to_clipboard">Copy to Clipboard</string>
+    <string name="edit_text">Edit text</string>
 
 
 </resources>

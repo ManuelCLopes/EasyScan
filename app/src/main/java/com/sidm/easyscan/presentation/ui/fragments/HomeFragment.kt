@@ -21,6 +21,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -53,27 +54,35 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        view.findViewById<Button>(R.id.open_camera).setOnClickListener {
+        view.findViewById<FloatingActionButton>(R.id.fab_camera).setOnClickListener {
             openNativeCamera()
         }
 
-        view.findViewById<Button>(R.id.show_dialog).setOnClickListener {
-            showAppDialog()
-        }
-
-        view.findViewById<Button>(R.id.show_snackbar).setOnClickListener {
-            showAppSnackbar()
-        }
-
-        view.findViewById<Button>(R.id.UploadButton).setOnClickListener {
+        view.findViewById<FloatingActionButton>(R.id.fab_upload).setOnClickListener {
             selectImageFromGallery()
         }
 
-        Glide.with(this)
-            .load("https://github.com/android-training-program/aula-5/blob/master/imagens/fifi.jpg?raw=true")
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
-            .fitCenter()
-            .into(view.findViewById(R.id.imageView))
+        view.findViewById<ImageView>(R.id.btn_copy).setOnClickListener {
+            Toast.makeText(
+                requireContext(),
+                "TODO: Copy text to clipboard",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
+        view.findViewById<ImageView>(R.id.btn_edit).setOnClickListener {
+            Toast.makeText(
+                requireContext(),
+                "TODO: Transform tv into TextInput",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
+        //Glide.with(this)
+        //    .load("https://github.com/android-training-program/aula-5/blob/master/imagens/fifi.jpg?raw=true")
+        //    .diskCacheStrategy(DiskCacheStrategy.ALL)
+        //    .fitCenter()
+        //    .into(view.findViewById(R.id.imageView))
     }
 
 
@@ -97,10 +106,15 @@ class HomeFragment : Fragment() {
                     uploadImageToFirebaseStorage()
                 }
 
-
             }
 
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun showTextOptions(view: View){
+        view.findViewById<ImageView>(R.id.btn_edit).visibility = View.VISIBLE
+        view.findViewById<ImageView>(R.id.btn_copy).visibility = View.VISIBLE
+
     }
 
 
@@ -110,7 +124,6 @@ class HomeFragment : Fragment() {
     private fun openNativeCamera() {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
-
     }
 
     /**
@@ -121,9 +134,10 @@ class HomeFragment : Fragment() {
 
         recognizer.process(inputImage)
             .addOnSuccessListener { visionText ->
-                processedText = visionText.text.toString()
-                requireView().findViewById<TextView>(R.id.tv_hello).text =
-                    processedText
+                val view: View = requireView()
+                processedText = visionText.text
+                view.findViewById<TextView>(R.id.tv_hello).text = processedText
+                showTextOptions(view)
             }
             .addOnFailureListener { e ->
                 // Task failed with an exception

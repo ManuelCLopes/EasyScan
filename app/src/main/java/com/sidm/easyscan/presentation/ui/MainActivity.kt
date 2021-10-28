@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.sidm.easyscan.R
 import com.sidm.easyscan.presentation.ui.fragments.AboutFragment
 import com.sidm.easyscan.presentation.ui.fragments.HomeFragment
@@ -45,4 +46,5 @@ class MainActivity : AppCompatActivity() {
             .replace(R.id.navigationContainer, fragment)
             .commit()
     }
+
 }
