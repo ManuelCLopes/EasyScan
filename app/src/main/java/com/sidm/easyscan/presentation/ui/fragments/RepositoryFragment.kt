@@ -44,7 +44,6 @@ class AboutFragment : Fragment(){
 
     private fun setup() {
         val linearLayoutManager = LinearLayoutManager(context)
-        linearLayoutManager.stackFromEnd = true
 
         binding.rvMessages.apply {
             setHasFixedSize(true)
@@ -56,7 +55,7 @@ class AboutFragment : Fragment(){
     }
 
     private fun loadDocuments() {
-        val docs = Firebase.firestore.collection("DocumentCollection").orderBy("timestamp")
+        val docs = Firebase.firestore.collection("DocumentCollection").orderBy("timestamp").limitToLast(10)
         docs.addSnapshotListener { snapshot, e ->
             if (e != null || snapshot == null) {
                 Log.w(TAG, "Unable to retrieve data. Error=$e, snapshot=$snapshot")

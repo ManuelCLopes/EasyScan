@@ -33,11 +33,11 @@ class DocumentsAdapter : ListAdapter<DocumentDTO, DocumentsAdapter.ItemsViewHold
 
     override fun onBindViewHolder(viewHolder: ItemsViewHolder, position: Int) {
         val message = getItem(position)
-        viewHolder.bind(message)
+        viewHolder.bind(message!!)
     }
 
-    override fun getItemId(position: Int): Long {
-        return currentList[position].timestamp.toLong()
+    override fun getItem(position: Int): DocumentDTO? {
+        return super.getItem(itemCount - position - 1)
     }
 
     private class DiffCallback : DiffUtil.ItemCallback<DocumentDTO>() {
