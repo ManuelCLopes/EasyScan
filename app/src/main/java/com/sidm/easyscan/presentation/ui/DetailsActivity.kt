@@ -1,34 +1,33 @@
 package com.sidm.easyscan.presentation.ui
 
-import android.content.Context
 import android.os.Bundle
-import android.util.AttributeSet
-import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.sidm.easyscan.R
 
 class DetailsActivity : AppCompatActivity() {
 
-    private lateinit var doc: String
+    private lateinit var processed_text: String
+    private lateinit var image_url: String
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_details)
 
         val b : Bundle? = intent.extras
-        doc = b?.get("doc").toString()
+        processed_text = b?.get("processed_text").toString()
+        image_url = b?.get("image_url").toString()
 
-    }
+        findViewById<TextView>(R.id.tv_test)?.text = processed_text
 
-    override fun onCreateView(
-        parent: View?,
-        name: String,
-        context: Context,
-        attrs: AttributeSet
-    ): View? {
-        parent?.findViewById<TextView>(R.id.tv_test)?.text = doc
-        return super.onCreateView(parent, name, context, attrs)
+        Glide.with(this)
+            .load(image_url)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .fitCenter()
+            .into(findViewById(R.id.iv_photo_details))
     }
 
 }

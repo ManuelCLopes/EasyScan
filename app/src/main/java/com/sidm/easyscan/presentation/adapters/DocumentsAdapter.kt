@@ -16,20 +16,22 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.content.ContextCompat.startActivity
+import com.firebase.ui.auth.AuthUI.getApplicationContext
 import com.sidm.easyscan.presentation.ui.DetailsActivity
 import com.sidm.easyscan.presentation.ui.MainActivity
 
 
-class DocumentsAdapter : ListAdapter<DocumentDTO, DocumentsAdapter.MessagesViewHolder>(DiffCallback()) {
+class DocumentsAdapter : ListAdapter<DocumentDTO, DocumentsAdapter.ItemsViewHolder>(DiffCallback()) {
 
     private lateinit var bindingIncoming: ItemDocumentBinding
 
-    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): MessagesViewHolder {
+    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ItemsViewHolder {
         bindingIncoming = ItemDocumentBinding.inflate(LayoutInflater.from(viewGroup.context))
-        return MessagesViewHolder(bindingIncoming)
+        return ItemsViewHolder(bindingIncoming)
     }
 
-    override fun onBindViewHolder(viewHolder: MessagesViewHolder, position: Int) {
+    override fun onBindViewHolder(viewHolder: ItemsViewHolder, position: Int) {
         val message = getItem(position)
         viewHolder.bind(message)
     }
@@ -47,7 +49,7 @@ class DocumentsAdapter : ListAdapter<DocumentDTO, DocumentsAdapter.MessagesViewH
             oldItem == newItem
     }
 
-    class MessagesViewHolder
+    class ItemsViewHolder
         constructor(itemBinding: ItemDocumentBinding) :
 
         RecyclerView.ViewHolder(itemBinding.root) {
@@ -63,8 +65,10 @@ class DocumentsAdapter : ListAdapter<DocumentDTO, DocumentsAdapter.MessagesViewH
                     .load(documentDTO.image_url)
                     .apply(requestOptions)
                     .into(bindingIncoming?.imageView!!)
+                bindingIncoming?.imageView?.contentDescription = documentDTO.image_url
                 bindingIncoming?.tvUser?.text = documentDTO.user
-                bindingIncoming?.tvContent?.text = documentDTO.timestamp
+                bindingIncoming?.tvTimestamp?.text = documentDTO.timestamp
+                bindingIncoming?.tvContent?.text = documentDTO.processed_text
             }
 
             init {
@@ -75,8 +79,11 @@ class DocumentsAdapter : ListAdapter<DocumentDTO, DocumentsAdapter.MessagesViewH
                         Toast.LENGTH_SHORT
                     ).show()
                     val b = Bundle()
-                    b.putString("doc", bindingIncoming?.tvContent?.text.toString()) //Your id
-                    //MainActivity.startActivity(Intent(itemView.context, DetailsActivity::class.java).putExtras(b))
+                    b.putString("image_url", bindingIncoming?.imageView?.contentDescription.toString())
+                    b.putString("processed_text", bindingIncoming?.tvContent?.text.toString())
+                    val intent = Intent(itemView.context, DetailsActivity::class.java)
+                    intent.putExtras(b)
+                    startActivity(itemView.context, intent, null)
                 }
             }
         }
