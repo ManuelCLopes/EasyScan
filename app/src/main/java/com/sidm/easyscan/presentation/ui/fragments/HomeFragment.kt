@@ -5,16 +5,14 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
+import android.opengl.Visibility
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -77,12 +75,6 @@ class HomeFragment : Fragment() {
                 Toast.LENGTH_SHORT
             ).show()
         }
-
-        //Glide.with(this)
-        //    .load("https://github.com/android-training-program/aula-5/blob/master/imagens/fifi.jpg?raw=true")
-        //    .diskCacheStrategy(DiskCacheStrategy.ALL)
-        //    .fitCenter()
-        //    .into(view.findViewById(R.id.imageView))
     }
 
 
@@ -93,7 +85,7 @@ class HomeFragment : Fragment() {
             val image = InputImage.fromBitmap(imageBitmap, 0)
 
             processText(image)
-            requireView().findViewById<ImageView>(R.id.imageView).setImageBitmap(imageBitmap)
+            requireView().findViewById<ImageView>(R.id.iv_new_image_doc).setImageBitmap(imageBitmap)
         }else
             if (resultCode == AppCompatActivity.RESULT_OK && requestCode == REQUEST_READ_STORAGE){
                 imageUri = data?.data
@@ -101,7 +93,7 @@ class HomeFragment : Fragment() {
                     val image = InputImage.fromFilePath(requireContext(), it)
 
                     processText(image)
-                    requireView().findViewById<ImageView>(R.id.imageView)
+                    requireView().findViewById<ImageView>(R.id.iv_new_image_doc)
                         .setImageURI(imageUri)// handle chosen image
                     uploadImageToFirebaseStorage()
                 }
@@ -111,10 +103,9 @@ class HomeFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    private fun showTextOptions(view: View){
-        view.findViewById<ImageView>(R.id.btn_edit).visibility = View.VISIBLE
-        view.findViewById<ImageView>(R.id.btn_copy).visibility = View.VISIBLE
-
+    private fun showNewDoc(view: View){
+        view.findViewById<LinearLayout>(R.id.new_doc).visibility = View.VISIBLE
+        view.findViewById<TextView>(R.id.tv_title).visibility = View.VISIBLE
     }
 
 
@@ -136,8 +127,8 @@ class HomeFragment : Fragment() {
             .addOnSuccessListener { visionText ->
                 val view: View = requireView()
                 processedText = visionText.text
-                view.findViewById<TextView>(R.id.tv_hello).text = processedText
-                showTextOptions(view)
+                showNewDoc(view)
+                view.findViewById<TextView>(R.id.tv_new_processed_text).text = processedText
             }
             .addOnFailureListener { e ->
                 // Task failed with an exception

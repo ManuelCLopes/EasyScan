@@ -14,6 +14,7 @@ import com.sidm.easyscan.data.model.DocumentDTO
 import com.sidm.easyscan.databinding.ItemDocumentBinding
 import android.content.Intent
 import android.os.Bundle
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat.startActivity
@@ -68,11 +69,12 @@ class DocumentsAdapter : ListAdapter<DocumentDTO, DocumentsAdapter.ItemsViewHold
                 bindingIncoming?.imageView?.contentDescription = documentDTO.image_url
                 bindingIncoming?.tvUser?.text = documentDTO.user
                 bindingIncoming?.tvTimestamp?.text = documentDTO.timestamp
+                bindingIncoming?.tvProcessedText?.text = documentDTO.processed_text
                 bindingIncoming?.tvContent?.text = documentDTO.processed_text
             }
 
             init {
-                itemView.findViewById<RelativeLayout>(R.id.ll_message_container) .setOnClickListener {
+                itemView.findViewById<LinearLayout>(R.id.ll_message_container) .setOnClickListener {
                     Toast.makeText(
                         itemView.context,
                         "TODO: Implement details screen",
