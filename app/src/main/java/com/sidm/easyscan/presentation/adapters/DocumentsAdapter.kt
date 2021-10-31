@@ -70,7 +70,6 @@ class DocumentsAdapter : ListAdapter<DocumentDTO, DocumentsAdapter.ItemsViewHold
                 bindingIncoming?.tvUser?.text = documentDTO.user
                 bindingIncoming?.tvTimestamp?.text = documentDTO.timestamp
                 bindingIncoming?.tvProcessedText?.text = documentDTO.processed_text
-                bindingIncoming?.tvContent?.text = documentDTO.processed_text
             }
 
             init {
@@ -82,7 +81,7 @@ class DocumentsAdapter : ListAdapter<DocumentDTO, DocumentsAdapter.ItemsViewHold
                     ).show()
                     val b = Bundle()
                     b.putString("image_url", bindingIncoming?.imageView?.contentDescription.toString())
-                    b.putString("processed_text", bindingIncoming?.tvContent?.text.toString())
+                    b.putString("processed_text", bindingIncoming?.tvProcessedText?.text.toString())
                     val intent = Intent(itemView.context, DetailsActivity::class.java)
                     intent.putExtras(b)
                     startActivity(itemView.context, intent, null)

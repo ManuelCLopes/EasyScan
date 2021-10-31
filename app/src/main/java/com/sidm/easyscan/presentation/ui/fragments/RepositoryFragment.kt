@@ -2,9 +2,7 @@ package com.sidm.easyscan.presentation.ui.fragments
 
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.view.get
@@ -82,4 +80,16 @@ class AboutFragment : Fragment(){
         }
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        val id: Int = item.itemId
+        return if (id == R.id.btn_sort) {
+            Toast.makeText(
+                requireContext(),
+                "TODO: Delete doc",
+                Toast.LENGTH_SHORT
+            ).show()
+            true
+        } else super.onOptionsItemSelected(item)
+    }
 }

@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
-import android.opengl.Visibility
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
@@ -18,16 +17,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.sidm.easyscan.R
+import com.sidm.easyscan.data.model.DocumentDTO
 import java.sql.Timestamp
 import java.util.*
 
@@ -46,6 +47,7 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        loadLastDocument()
         return inflater.inflate(R.layout.fragment_home, container, false)
     }
 
@@ -72,6 +74,14 @@ class HomeFragment : Fragment() {
             Toast.makeText(
                 requireContext(),
                 "TODO: Transform tv into TextInput",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
+        view.findViewById<ImageView>(R.id.btn_delete).setOnClickListener {
+            Toast.makeText(
+                requireContext(),
+                "TODO: Clear from view and delete from firebase",
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -132,7 +142,7 @@ class HomeFragment : Fragment() {
             }
             .addOnFailureListener { e ->
                 // Task failed with an exception
-                // ...
+                Log.e("Error", e.message.toString())
             }
     }
 
@@ -156,7 +166,7 @@ class HomeFragment : Fragment() {
         val filename = UUID.randomUUID().toString()
         val ref = FirebaseStorage.getInstance().getReference("/images/$filename")
 
-        imageUri?.let {
+        imageUri?.let { it ->
             ref.putFile(it)
                 .addOnSuccessListener {
                     Log.d("Register", "Successfully uploaded image: ${it.metadata?.path}")
@@ -179,6 +189,38 @@ class HomeFragment : Fragment() {
         val database = FirebaseFirestore.getInstance()
         database.collection("DocumentCollection")
             .add(doc)
+    }
+
+    private fun loadLastDocument() {
+        val docs = Firebase.firestore.collection("DocumentCollection").orderBy("timestamp").limitToLast(1)
+        docs.addSnapshotListener { snapshot, e ->
+            if (e != null || snapshot == null) {
+                Log.w(TAG, "Unable to retrieve data. Error=$e, snapshot=$snapshot")
+                return@addSnapshotListener
+            }
+
+            val result = snapshot.documents[0].data
+            val documentDTO = DocumentDTO(
+                "${result?.get("user")}",
+                "${result?.get("timestamp")}",
+                "${result?.get("image_url")}",
+                "${result?.get("processed_text")}"
+            )
+
+            val view : View = requireView()
+            view.findViewById<TextView>(R.id.tv_last_user).text = documentDTO.user
+            view.findViewById<TextView>(R.id.tv_last_timestamp).text = documentDTO.timestamp
+            view.findViewById<TextView>(R.id.tv_last_processed_text).text = documentDTO.processed_text
+
+            val requestOptions = RequestOptions()
+                .placeholder(R.drawable.ic_dummy)
+                .error(R.drawable.ic_dummy)
+            Glide.with(view.context)
+                .load(documentDTO.image_url)
+                .apply(requestOptions)
+                .into(view.findViewById(R.id.iv_last_image))
+
+        }
     }
 
 
@@ -241,21 +283,22 @@ class HomeFragment : Fragment() {
     }
 
     /**
-     * Calling this method will show a snackbar.
-     */
-    private fun showAppSnackbar() {
-        Snackbar.make(
+     * Calling this method will show a snack bar.
+
+    private fun showAppSnack bar() {
+        Snack bar.make(
             requireView(),
-            R.string.snackbar_message,
-            Snackbar.LENGTH_LONG
+            R.string.snack bar_message,
+            Snack bar.LENGTH_LONG
         )
-            .setAction(R.string.snackbar_action_thanks) {
+            .setAction(R.string.snack bar_action_thanks) {
                 Toast.makeText(
                     requireContext(),
-                    R.string.snackbar_action_thanks_selected,
+                    R.string.snack bar_action_thanks_selected,
                     Toast.LENGTH_SHORT
                 ).show()
             }
             .show()
     }
+    */
 }
