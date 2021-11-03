@@ -16,9 +16,9 @@ import com.sidm.easyscan.data.model.DocumentDTO
 import com.sidm.easyscan.databinding.FragmentRepositoryBinding
 import com.sidm.easyscan.presentation.adapters.DocumentsAdapter
 
-private const val TAG = "AboutFragment"
+private const val TAG = "RepositoryFragment"
 
-class AboutFragment : Fragment(){
+class RepositoryFragment : Fragment(){
 
     private lateinit var binding: FragmentRepositoryBinding
 
@@ -30,6 +30,7 @@ class AboutFragment : Fragment(){
     ): View {
         binding = FragmentRepositoryBinding.inflate(layoutInflater)
         return binding.root
+
     }
 
 
@@ -48,8 +49,6 @@ class AboutFragment : Fragment(){
             layoutManager = linearLayoutManager
             adapter = DocumentsAdapter()
         }
-
-
     }
 
     private fun loadDocuments() {
@@ -60,21 +59,22 @@ class AboutFragment : Fragment(){
                 return@addSnapshotListener
             }
 
-            val messages = mutableListOf<DocumentDTO>()
+            val result = mutableListOf<DocumentDTO>()
             for (document in snapshot.documents) {
-                val message = DocumentDTO(
+                val doc = DocumentDTO(
+                    document.id,
                     "${document.data?.get("user")}",
                     "${document.data?.get("timestamp")}",
                     "${document.data?.get("image_url")}",
                     "${document.data?.get("processed_text")}"
                 )
 
-                messages += message
+                result += doc
             }
 
             val adapter = binding.rvMessages.adapter as DocumentsAdapter
 
-            adapter.submitList(messages)
+            adapter.submitList(result)
             adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {})
 
         }

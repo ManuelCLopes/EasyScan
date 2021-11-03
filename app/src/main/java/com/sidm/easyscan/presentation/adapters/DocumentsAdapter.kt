@@ -33,8 +33,8 @@ class DocumentsAdapter : ListAdapter<DocumentDTO, DocumentsAdapter.ItemsViewHold
     }
 
     override fun onBindViewHolder(viewHolder: ItemsViewHolder, position: Int) {
-        val message = getItem(position)
-        viewHolder.bind(message!!)
+        val doc = getItem(position)
+        viewHolder.bind(doc!!)
     }
 
     override fun getItem(position: Int): DocumentDTO? {
@@ -70,6 +70,8 @@ class DocumentsAdapter : ListAdapter<DocumentDTO, DocumentsAdapter.ItemsViewHold
                 bindingIncoming?.tvUser?.text = documentDTO.user
                 bindingIncoming?.tvTimestamp?.text = documentDTO.timestamp
                 bindingIncoming?.tvProcessedText?.text = documentDTO.processed_text
+                bindingIncoming?.tvId?.text = documentDTO.id
+
             }
 
             init {
@@ -82,6 +84,8 @@ class DocumentsAdapter : ListAdapter<DocumentDTO, DocumentsAdapter.ItemsViewHold
                     val b = Bundle()
                     b.putString("image_url", bindingIncoming?.imageView?.contentDescription.toString())
                     b.putString("processed_text", bindingIncoming?.tvProcessedText?.text.toString())
+                    b.putString("id", bindingIncoming?.tvId?.text.toString())
+
                     val intent = Intent(itemView.context, DetailsActivity::class.java)
                     intent.putExtras(b)
                     startActivity(itemView.context, intent, null)

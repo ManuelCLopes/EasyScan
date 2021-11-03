@@ -4,15 +4,14 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.sidm.easyscan.R
-import com.sidm.easyscan.presentation.ui.fragments.AboutFragment
+import com.sidm.easyscan.presentation.ui.fragments.RepositoryFragment
 import com.sidm.easyscan.presentation.ui.fragments.HomeFragment
 
 class MainActivity : AppCompatActivity() {
 
     private val homeFragment by lazy { HomeFragment() }
-    private val aboutFragment by lazy { AboutFragment() }
+    private val repositoryFragment by lazy { RepositoryFragment() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,7 +30,7 @@ class MainActivity : AppCompatActivity() {
 
 
                 R.id.about -> {
-                    loadFragment(aboutFragment)
+                    loadFragment(repositoryFragment)
                     true
                 }
 

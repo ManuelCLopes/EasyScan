@@ -1,6 +1,7 @@
 package com.sidm.easyscan.presentation.ui.fragments
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -15,6 +16,7 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.get
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -29,6 +31,7 @@ import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.sidm.easyscan.R
 import com.sidm.easyscan.data.model.DocumentDTO
+import java.io.ByteArrayOutputStream
 import java.sql.Timestamp
 import java.util.*
 
@@ -41,6 +44,7 @@ class HomeFragment : Fragment() {
 
     private var imageUri: Uri? = null
     private var processedText: String? = ""
+    private lateinit var new_doc_id: String
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -79,11 +83,8 @@ class HomeFragment : Fragment() {
         }
 
         view.findViewById<ImageView>(R.id.btn_delete).setOnClickListener {
-            Toast.makeText(
-                requireContext(),
-                "TODO: Clear from view and delete from firebase",
-                Toast.LENGTH_SHORT
-            ).show()
+            deleteDocument(new_doc_id)
+            toggleNewDoc(view)
         }
     }
 
@@ -92,9 +93,14 @@ class HomeFragment : Fragment() {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == AppCompatActivity.RESULT_OK) {
 
             val imageBitmap = data?.extras?.get("data") as Bitmap
-            val image = InputImage.fromBitmap(imageBitmap, 0)
 
-            processText(image)
+            imageUri = context?.let { getImageUriFromBitmap(it, imageBitmap) }
+            imageUri?.let {
+                val image = InputImage.fromFilePath(requireContext(), it)
+                processText(image)
+
+            }
+            uploadImageToFirebaseStorage()
             requireView().findViewById<ImageView>(R.id.iv_new_image_doc).setImageBitmap(imageBitmap)
         }else
             if (resultCode == AppCompatActivity.RESULT_OK && requestCode == REQUEST_READ_STORAGE){
@@ -103,9 +109,9 @@ class HomeFragment : Fragment() {
                     val image = InputImage.fromFilePath(requireContext(), it)
 
                     processText(image)
+                    uploadImageToFirebaseStorage()
                     requireView().findViewById<ImageView>(R.id.iv_new_image_doc)
                         .setImageURI(imageUri)// handle chosen image
-                    uploadImageToFirebaseStorage()
                 }
 
             }
@@ -113,9 +119,15 @@ class HomeFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    private fun showNewDoc(view: View){
-        view.findViewById<LinearLayout>(R.id.new_doc).visibility = View.VISIBLE
-        view.findViewById<TextView>(R.id.tv_title).visibility = View.VISIBLE
+    private fun toggleNewDoc(view: View){
+        if (view.findViewById<LinearLayout>(R.id.new_doc).visibility == View.GONE){
+            view.findViewById<LinearLayout>(R.id.new_doc).visibility = View.VISIBLE
+            view.findViewById<TextView>(R.id.tv_title).visibility = View.VISIBLE
+        }else{
+            view.findViewById<LinearLayout>(R.id.new_doc).visibility = View.GONE
+            view.findViewById<TextView>(R.id.tv_title).visibility = View.GONE
+        }
+
     }
 
 
@@ -131,13 +143,14 @@ class HomeFragment : Fragment() {
      * Method that returns processed text from an image
      */
     private fun processText(inputImage: InputImage) {
+
         val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
         recognizer.process(inputImage)
             .addOnSuccessListener { visionText ->
                 val view: View = requireView()
                 processedText = visionText.text
-                showNewDoc(view)
+                toggleNewDoc(view)
                 view.findViewById<TextView>(R.id.tv_new_processed_text).text = processedText
             }
             .addOnFailureListener { e ->
@@ -188,7 +201,9 @@ class HomeFragment : Fragment() {
 
         val database = FirebaseFirestore.getInstance()
         database.collection("DocumentCollection")
-            .add(doc)
+            .add(doc).addOnSuccessListener {
+                new_doc_id = it.id
+            }
     }
 
     private fun loadLastDocument() {
@@ -199,27 +214,30 @@ class HomeFragment : Fragment() {
                 return@addSnapshotListener
             }
 
-            val result = snapshot.documents[0].data
-            val documentDTO = DocumentDTO(
-                "${result?.get("user")}",
-                "${result?.get("timestamp")}",
-                "${result?.get("image_url")}",
-                "${result?.get("processed_text")}"
-            )
+            val result = snapshot.documents[0]
+            result.let {
+                val documentDTO = DocumentDTO(
+                    result.id,
+                    "${result.data?.get("user")}",
+                    "${result.data?.get("timestamp")}",
+                    "${result.data?.get("image_url")}",
+                    "${result.data?.get("processed_text")}"
+                )
 
-            val view : View = requireView()
-            view.findViewById<TextView>(R.id.tv_last_user).text = documentDTO.user
-            view.findViewById<TextView>(R.id.tv_last_timestamp).text = documentDTO.timestamp
-            view.findViewById<TextView>(R.id.tv_last_processed_text).text = documentDTO.processed_text
+                val view: View = requireView()
+                view.findViewById<TextView>(R.id.tv_last_user).text = documentDTO.user
+                view.findViewById<TextView>(R.id.tv_last_timestamp).text = documentDTO.timestamp
+                view.findViewById<TextView>(R.id.tv_last_processed_text).text =
+                    documentDTO.processed_text
 
-            val requestOptions = RequestOptions()
-                .placeholder(R.drawable.ic_dummy)
-                .error(R.drawable.ic_dummy)
-            Glide.with(view.context)
-                .load(documentDTO.image_url)
-                .apply(requestOptions)
-                .into(view.findViewById(R.id.iv_last_image))
-
+                val requestOptions = RequestOptions()
+                    .placeholder(R.drawable.ic_dummy)
+                    .error(R.drawable.ic_dummy)
+                Glide.with(view.context)
+                    .load(documentDTO.image_url)
+                    .apply(requestOptions)
+                    .into(view.findViewById(R.id.iv_last_image))
+            }
         }
     }
 
@@ -257,6 +275,21 @@ class HomeFragment : Fragment() {
         }
 
         return true
+    }
+
+    private fun deleteDocument(id: String) {
+        Log.w("TAG", id)
+
+        val docs = Firebase.firestore.collection("DocumentCollection").document(id)
+        docs.addSnapshotListener{snapshot, e ->
+            val ref = snapshot?.data?.let { FirebaseStorage.getInstance().getReferenceFromUrl(
+                it["image_url"]
+                .toString()) }
+            ref?.delete()
+        }
+        docs.delete().addOnSuccessListener {
+            Log.w("TAG", "DELETE SUCCESSFUL $id")
+        }
     }
 
 
@@ -301,4 +334,11 @@ class HomeFragment : Fragment() {
             .show()
     }
     */
+
+    fun getImageUriFromBitmap(context: Context, bitmap: Bitmap): Uri{
+        val bytes = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
+        val path = MediaStore.Images.Media.insertImage(context.contentResolver, bitmap, "Title", null)
+        return Uri.parse(path.toString())
+    }
 }
