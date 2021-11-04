@@ -9,9 +9,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -31,6 +29,7 @@ import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.sidm.easyscan.R
 import com.sidm.easyscan.data.model.DocumentDTO
+import com.sidm.easyscan.presentation.ui.LoginActivity
 import java.io.ByteArrayOutputStream
 import java.sql.Timestamp
 import java.util.*
@@ -51,6 +50,7 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        setHasOptionsMenu(true)
         loadLastDocument()
         return inflater.inflate(R.layout.fragment_home, container, false)
     }
@@ -292,24 +292,30 @@ class HomeFragment : Fragment() {
         }
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        val id: Int = item.itemId
+        return if (id == R.id.btn_logout) {
+            showAppDialog()
+            true
+        } else super.onOptionsItemSelected(item)
+    }
 
     /**
      * Calling this method will show a dialog.
      */
     private fun showAppDialog() {
         val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle(R.string.dialog_title)
-        builder.setMessage(R.string.dialog_message)
+        builder.setTitle("Logout")
+        builder.setMessage("Are you sure you want to logout?")
         builder.apply {
-            setPositiveButton(R.string.dialog_action_ok) { _, _ ->
-                Toast.makeText(
-                    requireContext(),
-                    R.string.dialog_action_ok_selected,
-                    Toast.LENGTH_SHORT
-                ).show()
+            setPositiveButton("Logout") { _, _ ->
+                FirebaseAuth.getInstance().signOut()
+                startActivity(Intent(requireContext(), LoginActivity::class.java))
+                activity?.finish()
             }
-            setNegativeButton(R.string.dialog_action_cancel) { _, _ ->
-                Log.d(TAG, "Dialog cancelled")
+            setNegativeButton("Cancel") { _, _ ->
+                Log.d("TAG", "Dialog cancelled")
             }
         }
         builder.create().show()
@@ -335,7 +341,7 @@ class HomeFragment : Fragment() {
     }
     */
 
-    fun getImageUriFromBitmap(context: Context, bitmap: Bitmap): Uri{
+    private fun getImageUriFromBitmap(context: Context, bitmap: Bitmap): Uri{
         val bytes = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
         val path = MediaStore.Images.Media.insertImage(context.contentResolver, bitmap, "Title", null)

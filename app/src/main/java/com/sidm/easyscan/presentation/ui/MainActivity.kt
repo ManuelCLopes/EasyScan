@@ -1,6 +1,7 @@
 package com.sidm.easyscan.presentation.ui
 
 import android.os.Bundle
+import android.view.Menu
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -12,6 +13,8 @@ class MainActivity : AppCompatActivity() {
 
     private val homeFragment by lazy { HomeFragment() }
     private val repositoryFragment by lazy { RepositoryFragment() }
+    // 0 - HomeFragment    1 - RepositoryFragment
+    private var currentFragment: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,12 +27,14 @@ class MainActivity : AppCompatActivity() {
             when (item.itemId) {
 
                 R.id.home -> {
+                    currentFragment = 0
                     loadFragment(homeFragment)
                     true
                 }
 
 
-                R.id.about -> {
+                R.id.repository -> {
+                    currentFragment = 1
                     loadFragment(repositoryFragment)
                     true
                 }
@@ -37,6 +42,15 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        if (currentFragment == 0)
+            menuInflater.inflate(com.sidm.easyscan.R.menu.main_appbar, menu)
+        else
+            menuInflater.inflate(com.sidm.easyscan.R.menu.repository_appbar, menu)
+
+        return true
     }
 
     private fun loadFragment(fragment: Fragment){

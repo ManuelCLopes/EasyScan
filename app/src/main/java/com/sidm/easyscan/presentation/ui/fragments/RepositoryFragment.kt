@@ -28,9 +28,9 @@ class RepositoryFragment : Fragment(){
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        setHasOptionsMenu(true)
         binding = FragmentRepositoryBinding.inflate(layoutInflater)
         return binding.root
-
     }
 
 
@@ -86,7 +86,7 @@ class RepositoryFragment : Fragment(){
         return if (id == R.id.btn_sort) {
             Toast.makeText(
                 requireContext(),
-                "TODO: Delete doc",
+                "TODO: sort docs",
                 Toast.LENGTH_SHORT
             ).show()
             true

@@ -5,5 +5,5 @@
         android:icon="@drawable/ic_delete"
         android:orderInCategory="100"
         app:showAsAction="always"
-        android:title="item_delete" />
+        android:title="@string/delete_item" />
 </menu>

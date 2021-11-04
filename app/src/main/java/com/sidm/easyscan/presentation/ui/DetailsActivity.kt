@@ -53,9 +53,10 @@ class DetailsActivity : AppCompatActivity() {
         }
 
     }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(com.sidm.easyscan.R.menu.details_menu, menu)
+        menuInflater.inflate(com.sidm.easyscan.R.menu.details_appbar, menu)
         return true
     }
 
@@ -63,14 +64,7 @@ class DetailsActivity : AppCompatActivity() {
 
         val id: Int = item.itemId
         return if (id == com.sidm.easyscan.R.id.btn_delete) {
-            Toast.makeText(
-                applicationContext,
-                "TODO: Delete doc",
-                Toast.LENGTH_SHORT
-            ).show()
             showAppDialog()
-
-
             true
         } else super.onOptionsItemSelected(item)
     }
@@ -82,9 +76,13 @@ class DetailsActivity : AppCompatActivity() {
         builder.apply {
             setPositiveButton(com.sidm.easyscan.R.string.delete_dialog_action_ok) { _, _ ->
                 deleteDocument(id)
+                Toast.makeText(
+                    applicationContext,
+                    "Document deleted",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
             setNegativeButton(com.sidm.easyscan.R.string.delete_dialog_action_cancel) { _, _ ->
-                Log.d("TAG", "Dialog cancelled")
             }
         }
         builder.create().show()

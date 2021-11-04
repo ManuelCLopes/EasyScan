@@ -14,7 +14,8 @@
         android:supportsRtl="true"
         android:requestLegacyExternalStorage="true"
         android:theme="@style/Theme.EasyScan"
-        android:allowBackup="false">
+        android:allowBackup="true"
+        android:fullBackupContent="true">
 
         <meta-data
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"
