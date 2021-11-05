@@ -73,7 +73,6 @@ class RepositoryFragment : Fragment(){
             }
 
             val adapter = binding.rvMessages.adapter as DocumentsAdapter
-
             adapter.submitList(result)
             adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {})
 

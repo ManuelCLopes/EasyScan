@@ -1,16 +1,25 @@
 package com.sidm.easyscan.presentation.ui.fragments
 
 import android.Manifest
+import android.R.attr
+import android.app.Activity
 import android.content.Context
+import android.content.Context.CAMERA_SERVICE
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.hardware.camera2.CameraAccessException
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.util.SparseIntArray
 import android.view.*
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -33,6 +42,15 @@ import com.sidm.easyscan.presentation.ui.LoginActivity
 import java.io.ByteArrayOutputStream
 import java.sql.Timestamp
 import java.util.*
+import android.R.attr.label
+
+import android.content.ClipData
+import android.content.ClipboardManager
+
+import androidx.core.content.ContextCompat.getSystemService
+
+
+
 
 
 private const val TAG = "HomeFragment"
@@ -67,11 +85,7 @@ class HomeFragment : Fragment() {
         }
 
         view.findViewById<ImageView>(R.id.btn_copy).setOnClickListener {
-            Toast.makeText(
-                requireContext(),
-                "TODO: Copy text to clipboard",
-                Toast.LENGTH_SHORT
-            ).show()
+            copyToClipboard(this.processedText.toString())
         }
 
         view.findViewById<ImageView>(R.id.btn_edit).setOnClickListener {
@@ -127,6 +141,16 @@ class HomeFragment : Fragment() {
             view.findViewById<LinearLayout>(R.id.new_doc).visibility = View.GONE
             view.findViewById<TextView>(R.id.tv_title).visibility = View.GONE
         }
+
+    }
+
+    private fun copyToClipboard(text: String){
+        val clipboard: ClipboardManager? =
+            activity?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
+        val clip = ClipData.newPlainText(label.toString(), text)
+        clipboard?.setPrimaryClip(clip)
+
+        Toast.makeText(requireContext(), "Text copied to clipboard", Toast.LENGTH_LONG).show()
 
     }
 
@@ -320,26 +344,6 @@ class HomeFragment : Fragment() {
         }
         builder.create().show()
     }
-
-    /**
-     * Calling this method will show a snack bar.
-
-    private fun showAppSnack bar() {
-        Snack bar.make(
-            requireView(),
-            R.string.snack bar_message,
-            Snack bar.LENGTH_LONG
-        )
-            .setAction(R.string.snack bar_action_thanks) {
-                Toast.makeText(
-                    requireContext(),
-                    R.string.snack bar_action_thanks_selected,
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            .show()
-    }
-    */
 
     private fun getImageUriFromBitmap(context: Context, bitmap: Bitmap): Uri{
         val bytes = ByteArrayOutputStream()
