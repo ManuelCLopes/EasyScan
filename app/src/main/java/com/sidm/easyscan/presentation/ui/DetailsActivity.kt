@@ -35,6 +35,7 @@ class DetailsActivity : AppCompatActivity() {
         id = b?.get("id").toString()
 
         findViewById<TextView>(com.sidm.easyscan.R.id.tv_test)?.text = processed_text
+        findViewById<TextView>(com.sidm.easyscan.R.id.et_test)?.text = processed_text
 
         val image_view = findViewById<ImageView>(com.sidm.easyscan.R.id.iv_photo_details)
 

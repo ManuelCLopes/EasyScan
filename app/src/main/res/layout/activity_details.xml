@@ -36,11 +36,13 @@
                 android:layout_width="match_parent"/>
 
             <EditText
-                android:id="@+id/hidden_edit_view"
+                android:id="@+id/et_test"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autofillHints="@+id/tv_test"
-                android:inputType="text" />
+                android:inputType="textMultiLine"
+                android:importantForAutofill="no"
+                tools:ignore="LabelFor" />
+
         </ViewSwitcher>
 
     </LinearLayout>

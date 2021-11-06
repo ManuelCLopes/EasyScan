@@ -1,27 +1,22 @@
 package com.sidm.easyscan.presentation.ui.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.Toast
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.core.view.get
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import com.sidm.easyscan.R
+import com.sidm.easyscan.data.FirebaseViewModel
 import com.sidm.easyscan.data.model.DocumentDTO
 import com.sidm.easyscan.databinding.FragmentRepositoryBinding
 import com.sidm.easyscan.presentation.adapters.DocumentsAdapter
 
-private const val TAG = "RepositoryFragment"
-
 class RepositoryFragment : Fragment(){
 
     private lateinit var binding: FragmentRepositoryBinding
-
+    private lateinit var firebaseViewModel: FirebaseViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -29,6 +24,7 @@ class RepositoryFragment : Fragment(){
         savedInstanceState: Bundle?
     ): View {
         setHasOptionsMenu(true)
+        firebaseViewModel = ViewModelProvider(this)[FirebaseViewModel::class.java]
         binding = FragmentRepositoryBinding.inflate(layoutInflater)
         return binding.root
     }
@@ -52,6 +48,13 @@ class RepositoryFragment : Fragment(){
     }
 
     private fun loadDocuments() {
+        val adapter = binding.rvMessages.adapter as DocumentsAdapter
+        firebaseViewModel.getDocuments().observe(this.requireActivity(), {
+            adapter.submitList(it)
+        })
+        adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {})
+
+        /*
         val docs = Firebase.firestore.collection("DocumentCollection").orderBy("timestamp").limitToLast(10)
         docs.addSnapshotListener { snapshot, e ->
             if (e != null || snapshot == null) {
@@ -71,12 +74,7 @@ class RepositoryFragment : Fragment(){
 
                 result += doc
             }
-
-            val adapter = binding.rvMessages.adapter as DocumentsAdapter
-            adapter.submitList(result)
-            adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {})
-
-        }
+        }*/
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
