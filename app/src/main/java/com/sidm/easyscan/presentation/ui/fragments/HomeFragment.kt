@@ -1,29 +1,19 @@
 package com.sidm.easyscan.presentation.ui.fragments
 
 import android.Manifest
-import android.R.attr
-import android.app.Activity
 import android.content.Context
-import android.content.Context.CAMERA_SERVICE
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.hardware.camera2.CameraAccessException
-import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
-import android.util.SparseIntArray
 import android.view.*
 import android.widget.*
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.get
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -47,13 +37,10 @@ import android.R.attr.label
 import android.content.ClipData
 import android.content.ClipboardManager
 
-import androidx.core.content.ContextCompat.getSystemService
+import androidx.lifecycle.ViewModelProvider
+import com.sidm.easyscan.data.FirebaseViewModel
 
 
-
-
-
-private const val TAG = "HomeFragment"
 private const val REQUEST_IMAGE_CAPTURE = 100
 private const val REQUEST_READ_STORAGE = 500
 
@@ -62,6 +49,8 @@ class HomeFragment : Fragment() {
     private var imageUri: Uri? = null
     private var processedText: String? = ""
     private lateinit var new_doc_id: String
+    private lateinit var firebaseViewModel: FirebaseViewModel
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -69,6 +58,7 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         setHasOptionsMenu(true)
+        firebaseViewModel = ViewModelProvider(this)[FirebaseViewModel::class.java]
         loadLastDocument()
         return inflater.inflate(R.layout.fragment_home, container, false)
     }
@@ -231,38 +221,23 @@ class HomeFragment : Fragment() {
     }
 
     private fun loadLastDocument() {
-        val docs = Firebase.firestore.collection("DocumentCollection").orderBy("timestamp").limitToLast(1)
-        docs.addSnapshotListener { snapshot, e ->
-            if (e != null || snapshot == null) {
-                Log.w(TAG, "Unable to retrieve data. Error=$e, snapshot=$snapshot")
-                return@addSnapshotListener
-            }
+        firebaseViewModel.getLastDocument().observe(this.requireActivity(), { documentDTO ->
+            val view: View = requireView()
+            view.findViewById<TextView>(R.id.tv_last_user).text = documentDTO.user
+            view.findViewById<TextView>(R.id.tv_last_timestamp).text = documentDTO.timestamp
+            view.findViewById<TextView>(R.id.tv_last_processed_text).text =
+                documentDTO.processed_text
 
-            val result = snapshot.documents[0]
-            result.let {
-                val documentDTO = DocumentDTO(
-                    result.id,
-                    "${result.data?.get("user")}",
-                    "${result.data?.get("timestamp")}",
-                    "${result.data?.get("image_url")}",
-                    "${result.data?.get("processed_text")}"
-                )
 
-                val view: View = requireView()
-                view.findViewById<TextView>(R.id.tv_last_user).text = documentDTO.user
-                view.findViewById<TextView>(R.id.tv_last_timestamp).text = documentDTO.timestamp
-                view.findViewById<TextView>(R.id.tv_last_processed_text).text =
-                    documentDTO.processed_text
+            val requestOptions = RequestOptions()
+                .placeholder(R.drawable.ic_dummy)
+                .error(R.drawable.ic_dummy)
 
-                val requestOptions = RequestOptions()
-                    .placeholder(R.drawable.ic_dummy)
-                    .error(R.drawable.ic_dummy)
-                Glide.with(view.context)
-                    .load(documentDTO.image_url)
-                    .apply(requestOptions)
-                    .into(view.findViewById(R.id.iv_last_image))
-            }
-        }
+            Glide.with(view.context)
+                .load(documentDTO.image_url)
+                .apply(requestOptions)
+                .into(view.findViewById(R.id.iv_last_image))
+        })
     }
 
 

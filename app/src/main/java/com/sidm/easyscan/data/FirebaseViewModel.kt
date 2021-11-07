@@ -8,13 +8,14 @@ import com.sidm.easyscan.data.model.DocumentDTO
 
 class FirebaseViewModel: ViewModel() {
 
-    val TAG = "FIREBASE_VIEW_MODEL"
-    val firebaseRepository = FirebaseRepository()
-    var docs :MutableLiveData<List<DocumentDTO>> = MutableLiveData()
+    private val TAG = "FIREBASE_VIEW_MODEL"
+    private val firebaseRepository = FirebaseRepository()
+    private var docs :MutableLiveData<List<DocumentDTO>> = MutableLiveData()
+    private var lastDoc: MutableLiveData<DocumentDTO> = MutableLiveData()
 
     fun getDocuments(): MutableLiveData<List<DocumentDTO>> {
 
-        firebaseRepository.loadDocuments()
+        firebaseRepository.getDocuments()
             .orderBy("timestamp").limitToLast(10)
             .addSnapshotListener { snapshot, e ->
                 if (e != null || snapshot == null) {
@@ -41,4 +42,25 @@ class FirebaseViewModel: ViewModel() {
         return docs
     }
 
+    fun getLastDocument(): MutableLiveData<DocumentDTO> {
+        firebaseRepository.getDocuments()
+            .orderBy("timestamp").limitToLast(1)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null || snapshot == null) {
+                    Log.w(TAG, "Unable to retrieve data. Error=$e, snapshot=$snapshot")
+                    return@addSnapshotListener
+                }
+
+                val result = DocumentDTO(
+                    snapshot.documents[0].id,
+                    "${snapshot.documents[0].data?.get("user")}",
+                    "${snapshot.documents[0].data?.get("timestamp")}",
+                    "${snapshot.documents[0].data?.get("image_url")}",
+                    "${snapshot.documents[0].data?.get("processed_text")}"
+                )
+                lastDoc.postValue(result)
+            }
+
+        return lastDoc
+    }
 }

@@ -19,7 +19,7 @@ class FirebaseRepository{
     val user = FirebaseAuth.getInstance().currentUser
 
 
-    fun loadDocuments(): CollectionReference {
+    fun getDocuments(): CollectionReference {
         return firestoreDB.collection("DocumentCollection")//.orderBy("timestamp").limitToLast(10)
     }
 
@@ -36,7 +36,7 @@ class FirebaseRepository{
         }
     }
 
-    fun loadLastDocument() {
+    fun getLastDocument() {
         val docs = firestoreDB.collection("DocumentCollection").orderBy("timestamp").limitToLast(1)
         docs.addSnapshotListener { snapshot, e ->
             if (e != null || snapshot == null) {
