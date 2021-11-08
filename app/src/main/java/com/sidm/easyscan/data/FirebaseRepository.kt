@@ -36,6 +36,7 @@ class FirebaseRepository{
         }
     }
 
+
     fun getLastDocument() {
         val docs = firestoreDB.collection("DocumentCollection").orderBy("timestamp").limitToLast(1)
         docs.addSnapshotListener { snapshot, e ->

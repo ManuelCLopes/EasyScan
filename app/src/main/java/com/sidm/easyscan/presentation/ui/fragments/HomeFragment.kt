@@ -36,6 +36,9 @@ import android.R.attr.label
 
 import android.content.ClipData
 import android.content.ClipboardManager
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 
 import androidx.lifecycle.ViewModelProvider
 import com.sidm.easyscan.data.FirebaseViewModel
@@ -106,10 +109,10 @@ class HomeFragment : Fragment() {
             }
             uploadImageToFirebaseStorage()
             requireView().findViewById<ImageView>(R.id.iv_new_image_doc).setImageBitmap(imageBitmap)
-        }else
-            if (resultCode == AppCompatActivity.RESULT_OK && requestCode == REQUEST_READ_STORAGE){
+        } else
+            if (resultCode == AppCompatActivity.RESULT_OK && requestCode == REQUEST_READ_STORAGE) {
                 imageUri = data?.data
-                imageUri?.let{it ->
+                imageUri?.let { it ->
                     val image = InputImage.fromFilePath(requireContext(), it)
 
                     processText(image)
@@ -123,18 +126,18 @@ class HomeFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    private fun toggleNewDoc(view: View){
-        if (view.findViewById<LinearLayout>(R.id.new_doc).visibility == View.GONE){
+    private fun toggleNewDoc(view: View) {
+        if (view.findViewById<LinearLayout>(R.id.new_doc).visibility == View.GONE) {
             view.findViewById<LinearLayout>(R.id.new_doc).visibility = View.VISIBLE
             view.findViewById<TextView>(R.id.tv_title).visibility = View.VISIBLE
-        }else{
+        } else {
             view.findViewById<LinearLayout>(R.id.new_doc).visibility = View.GONE
             view.findViewById<TextView>(R.id.tv_title).visibility = View.GONE
         }
 
     }
 
-    private fun copyToClipboard(text: String){
+    private fun copyToClipboard(text: String) {
         val clipboard: ClipboardManager? =
             activity?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
         val clip = ClipData.newPlainText(label.toString(), text)
@@ -174,13 +177,12 @@ class HomeFragment : Fragment() {
     }
 
 
-
     /**
      * Calling this method will open the gallery.
      */
     private fun selectImageFromGallery() {
 
-        if(!checkPermissionAndRequest()){
+        if (!checkPermissionAndRequest()) {
             return
         }
         val intent = Intent(Intent.ACTION_PICK)
@@ -189,7 +191,7 @@ class HomeFragment : Fragment() {
     }
 
 
-    private fun uploadImageToFirebaseStorage(){
+    private fun uploadImageToFirebaseStorage() {
         val filename = UUID.randomUUID().toString()
         val ref = FirebaseStorage.getInstance().getReference("/images/$filename")
 
@@ -200,11 +202,11 @@ class HomeFragment : Fragment() {
                     ref.downloadUrl.addOnSuccessListener {
                         saveImageInfoToFirebaseDatabase(it.toString())
                     }
-            }
+                }
         }
     }
 
-    private fun saveImageInfoToFirebaseDatabase(imageUrl: String){
+    private fun saveImageInfoToFirebaseDatabase(imageUrl: String) {
 
         val doc = hashMapOf(
             "user" to FirebaseAuth.getInstance().currentUser?.displayName,
@@ -221,7 +223,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun loadLastDocument() {
-        firebaseViewModel.getLastDocument().observe(this.requireActivity(), { documentDTO ->
+        firebaseViewModel.getLastDocument().observeOnce(this.requireActivity(), { documentDTO ->
             val view: View = requireView()
             view.findViewById<TextView>(R.id.tv_last_user).text = documentDTO.user
             view.findViewById<TextView>(R.id.tv_last_timestamp).text = documentDTO.timestamp
@@ -237,9 +239,18 @@ class HomeFragment : Fragment() {
                 .load(documentDTO.image_url)
                 .apply(requestOptions)
                 .into(view.findViewById(R.id.iv_last_image))
+
         })
     }
 
+    private fun <T> LiveData<T>.observeOnce(lifecycleOwner: LifecycleOwner, observer: Observer<T>) {
+        observe(lifecycleOwner, object : Observer<T> {
+            override fun onChanged(t: T?) {
+                observer.onChanged(t)
+                removeObserver(this)
+            }
+        })
+    }
 
     /**
      * Permissions
@@ -250,10 +261,11 @@ class HomeFragment : Fragment() {
         grantResults: IntArray
     ) {
 
-        if(requestCode == REQUEST_READ_STORAGE){
+        if (requestCode == REQUEST_READ_STORAGE) {
 
-            if(permissions[0] == Manifest.permission.READ_EXTERNAL_STORAGE &&
-                grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (permissions[0] == Manifest.permission.READ_EXTERNAL_STORAGE &&
+                grantResults[0] == PackageManager.PERMISSION_GRANTED
+            ) {
                 selectImageFromGallery()
             }
         } else {
@@ -262,13 +274,20 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun checkPermissionAndRequest(): Boolean{
+    private fun checkPermissionAndRequest(): Boolean {
 
-        if(ContextCompat
-                .checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED){
+        if (ContextCompat
+                .checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                )
+            != PackageManager.PERMISSION_GRANTED
+        ) {
 
-            requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_READ_STORAGE)
+            requestPermissions(
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                REQUEST_READ_STORAGE
+            )
 
             return false
         }
@@ -277,18 +296,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun deleteDocument(id: String) {
-        Log.w("TAG", id)
-
-        val docs = Firebase.firestore.collection("DocumentCollection").document(id)
-        docs.addSnapshotListener{snapshot, e ->
-            val ref = snapshot?.data?.let { FirebaseStorage.getInstance().getReferenceFromUrl(
-                it["image_url"]
-                .toString()) }
-            ref?.delete()
-        }
-        docs.delete().addOnSuccessListener {
-            Log.w("TAG", "DELETE SUCCESSFUL $id")
-        }
+        firebaseViewModel.deleteDocument(id)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -320,10 +328,12 @@ class HomeFragment : Fragment() {
         builder.create().show()
     }
 
-    private fun getImageUriFromBitmap(context: Context, bitmap: Bitmap): Uri{
+    private fun getImageUriFromBitmap(context: Context, bitmap: Bitmap): Uri {
         val bytes = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
-        val path = MediaStore.Images.Media.insertImage(context.contentResolver, bitmap, "Title", null)
+        val path =
+            MediaStore.Images.Media.insertImage(context.contentResolver, bitmap, "Title", null)
         return Uri.parse(path.toString())
     }
+
 }

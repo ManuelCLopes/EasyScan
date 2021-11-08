@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.firebase.storage.FirebaseStorage
 import com.sidm.easyscan.data.model.DocumentDTO
 
 class FirebaseViewModel: ViewModel() {
@@ -63,4 +64,10 @@ class FirebaseViewModel: ViewModel() {
 
         return lastDoc
     }
+
+    fun deleteDocument(id: String) {
+        firebaseRepository.deleteDocument(id)
+    }
+
+
 }
