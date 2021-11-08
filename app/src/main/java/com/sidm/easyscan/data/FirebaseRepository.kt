@@ -4,7 +4,6 @@ import android.net.Uri
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
@@ -47,19 +46,15 @@ class FirebaseRepository{
         }
     }
 
-    fun createDocument(imageUri: Uri, processedText: String){
-        val filename = UUID.randomUUID().toString()
+    fun createDocument(filename: String, imageUri: Uri, processedText: String) {
         val ref = FirebaseStorage.getInstance().getReference("/images/$filename")
-
-
-            ref.putFile(imageUri)
-                .addOnSuccessListener {
-                    Log.d("Register", "Successfully uploaded image: ${it.metadata?.path}")
-                    ref.downloadUrl.addOnSuccessListener {uri ->
-                        saveImageInfoToFirebaseDatabase(uri.toString(), processedText)
-                    }
+        ref.putFile(imageUri)
+            .addOnSuccessListener {
+                Log.d("Register", "Successfully uploaded image: ${it.metadata?.path}")
+                ref.downloadUrl.addOnSuccessListener { uri ->
+                    saveImageInfoToFirebaseDatabase(uri.toString(), processedText)
                 }
-
+            }
     }
 
     private fun saveImageInfoToFirebaseDatabase(imageUrl: String, processedText: String){

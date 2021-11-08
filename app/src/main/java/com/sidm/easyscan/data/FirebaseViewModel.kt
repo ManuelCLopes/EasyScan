@@ -1,11 +1,11 @@
 package com.sidm.easyscan.data
 
+import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.firebase.storage.FirebaseStorage
 import com.sidm.easyscan.data.model.DocumentDTO
+import java.util.*
 
 class FirebaseViewModel: ViewModel() {
 
@@ -69,5 +69,9 @@ class FirebaseViewModel: ViewModel() {
         firebaseRepository.deleteDocument(id)
     }
 
+    fun createDocument(imageUri: Uri, processedText: String){
+        val filename = UUID.randomUUID().toString()
+        firebaseRepository.createDocument(filename, imageUri, processedText)
+    }
 
 }

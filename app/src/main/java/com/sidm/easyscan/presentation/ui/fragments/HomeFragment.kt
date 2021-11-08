@@ -19,27 +19,18 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.sidm.easyscan.R
-import com.sidm.easyscan.data.model.DocumentDTO
 import com.sidm.easyscan.presentation.ui.LoginActivity
 import java.io.ByteArrayOutputStream
-import java.sql.Timestamp
-import java.util.*
 import android.R.attr.label
-
 import android.content.ClipData
 import android.content.ClipboardManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-
 import androidx.lifecycle.ViewModelProvider
 import com.sidm.easyscan.data.FirebaseViewModel
 
@@ -90,7 +81,9 @@ class HomeFragment : Fragment() {
         }
 
         view.findViewById<ImageView>(R.id.btn_delete).setOnClickListener {
-            deleteDocument(new_doc_id)
+            firebaseViewModel.getLastDocument().observeOnce(this.requireActivity(), {
+                deleteDocument(it.id)
+            })
             toggleNewDoc(view)
         }
     }
@@ -98,31 +91,25 @@ class HomeFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == AppCompatActivity.RESULT_OK) {
-
             val imageBitmap = data?.extras?.get("data") as Bitmap
 
             imageUri = context?.let { getImageUriFromBitmap(it, imageBitmap) }
             imageUri?.let {
-                val image = InputImage.fromFilePath(requireContext(), it)
-                processText(image)
+                processText(it)
 
+                requireView().findViewById<ImageView>(R.id.iv_new_image_doc)
+                    .setImageBitmap(imageBitmap)
             }
-            uploadImageToFirebaseStorage()
-            requireView().findViewById<ImageView>(R.id.iv_new_image_doc).setImageBitmap(imageBitmap)
         } else
-            if (resultCode == AppCompatActivity.RESULT_OK && requestCode == REQUEST_READ_STORAGE) {
+            if (requestCode == REQUEST_READ_STORAGE && resultCode == AppCompatActivity.RESULT_OK) {
                 imageUri = data?.data
-                imageUri?.let { it ->
-                    val image = InputImage.fromFilePath(requireContext(), it)
+                imageUri?.let {
+                    processText(it)
 
-                    processText(image)
-                    uploadImageToFirebaseStorage()
                     requireView().findViewById<ImageView>(R.id.iv_new_image_doc)
                         .setImageURI(imageUri)// handle chosen image
                 }
-
             }
-
         super.onActivityResult(requestCode, resultCode, data)
     }
 
@@ -147,7 +134,6 @@ class HomeFragment : Fragment() {
 
     }
 
-
     /**
      * Calling this method will open the default camera application.
      */
@@ -159,14 +145,15 @@ class HomeFragment : Fragment() {
     /**
      * Method that returns processed text from an image
      */
-    private fun processText(inputImage: InputImage) {
+    private fun processText(imageUri: Uri){
 
+        val inputImage = InputImage.fromFilePath(requireContext(), imageUri)
         val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-
         recognizer.process(inputImage)
             .addOnSuccessListener { visionText ->
-                val view: View = requireView()
                 processedText = visionText.text
+                firebaseViewModel.createDocument(imageUri, processedText!!)
+                val view: View = requireView()
                 toggleNewDoc(view)
                 view.findViewById<TextView>(R.id.tv_new_processed_text).text = processedText
             }
@@ -175,7 +162,6 @@ class HomeFragment : Fragment() {
                 Log.e("Error", e.message.toString())
             }
     }
-
 
     /**
      * Calling this method will open the gallery.
@@ -188,38 +174,6 @@ class HomeFragment : Fragment() {
         val intent = Intent(Intent.ACTION_PICK)
         intent.type = "image/*"
         startActivityForResult(intent, REQUEST_READ_STORAGE)
-    }
-
-
-    private fun uploadImageToFirebaseStorage() {
-        val filename = UUID.randomUUID().toString()
-        val ref = FirebaseStorage.getInstance().getReference("/images/$filename")
-
-        imageUri?.let { it ->
-            ref.putFile(it)
-                .addOnSuccessListener {
-                    Log.d("Register", "Successfully uploaded image: ${it.metadata?.path}")
-                    ref.downloadUrl.addOnSuccessListener {
-                        saveImageInfoToFirebaseDatabase(it.toString())
-                    }
-                }
-        }
-    }
-
-    private fun saveImageInfoToFirebaseDatabase(imageUrl: String) {
-
-        val doc = hashMapOf(
-            "user" to FirebaseAuth.getInstance().currentUser?.displayName,
-            "timestamp" to "${Timestamp(System.currentTimeMillis())}",
-            "image_url" to imageUrl,
-            "processed_text" to processedText,
-        )
-
-        val database = FirebaseFirestore.getInstance()
-        database.collection("DocumentCollection")
-            .add(doc).addOnSuccessListener {
-                new_doc_id = it.id
-            }
     }
 
     private fun loadLastDocument() {
