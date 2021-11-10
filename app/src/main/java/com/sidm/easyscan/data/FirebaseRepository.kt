@@ -2,8 +2,10 @@ package com.sidm.easyscan.data
 
 import android.net.Uri
 import android.util.Log
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
@@ -35,20 +37,9 @@ class FirebaseRepository{
         }
     }
 
-
-    fun getLastDocument() {
-        val docs = firestoreDB.collection("DocumentCollection").orderBy("timestamp").limitToLast(1)
-        docs.addSnapshotListener { snapshot, e ->
-            if (e != null || snapshot == null) {
-                Log.w(TAG, "Unable to retrieve data. Error=$e, snapshot=$snapshot")
-                return@addSnapshotListener
-            }
-        }
-    }
-
     fun createDocument(filename: String, imageUri: Uri, processedText: String) {
         val ref = FirebaseStorage.getInstance().getReference("/images/$filename")
-        ref.putFile(imageUri)
+        val snap = ref.putFile(imageUri)
             .addOnSuccessListener {
                 Log.d("Register", "Successfully uploaded image: ${it.metadata?.path}")
                 ref.downloadUrl.addOnSuccessListener { uri ->
@@ -67,7 +58,8 @@ class FirebaseRepository{
         )
 
         firestoreDB.collection("DocumentCollection")
-            .add(doc).addOnSuccessListener {
+            .add(doc)
+            .addOnSuccessListener {
                 return@addOnSuccessListener
             }
     }

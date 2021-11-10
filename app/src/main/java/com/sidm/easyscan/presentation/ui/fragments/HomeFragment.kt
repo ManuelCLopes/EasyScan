@@ -33,6 +33,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.sidm.easyscan.data.FirebaseViewModel
+import android.content.ContentValues
+
+import android.os.Build
+import android.os.Environment
+import java.io.OutputStream
 
 
 private const val REQUEST_IMAGE_CAPTURE = 100
@@ -42,7 +47,6 @@ class HomeFragment : Fragment() {
 
     private var imageUri: Uri? = null
     private var processedText: String? = ""
-    private lateinit var new_doc_id: String
     private lateinit var firebaseViewModel: FirebaseViewModel
 
 
@@ -283,10 +287,49 @@ class HomeFragment : Fragment() {
     }
 
     private fun getImageUriFromBitmap(context: Context, bitmap: Bitmap): Uri {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) saveImageInQ(bitmap)
+        else saveImageOldSdk(bitmap)
+
+    }
+
+    private fun saveImageInQ(bitmap: Bitmap):Uri {
+        val filename = "IMG_${System.currentTimeMillis()}.jpg"
+        var fos: OutputStream? = null
+        var imageUri: Uri? = null
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                put(MediaStore.Video.Media.IS_PENDING, 1)
+            }
+        }
+
+        val contentResolver = context?.contentResolver
+
+        contentResolver.also { resolver ->
+            imageUri = resolver?.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+            fos = imageUri?.let { resolver?.openOutputStream(it) }
+        }
+
+        fos?.use { bitmap.compress(Bitmap.CompressFormat.JPEG, 70, it) }
+
+        contentValues.clear()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            contentValues.put(MediaStore.Video.Media.IS_PENDING, 0)
+        }
+        contentResolver?.update(imageUri!!, contentValues, null, null)
+
+        return imageUri!!
+    }
+
+    private fun saveImageOldSdk(bitmap:Bitmap): Uri{
         val bytes = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
         val path =
-            MediaStore.Images.Media.insertImage(context.contentResolver, bitmap, "Title", null)
+            MediaStore.Images.Media.insertImage(context?.contentResolver, bitmap, "Title", null)
         return Uri.parse(path.toString())
     }
 

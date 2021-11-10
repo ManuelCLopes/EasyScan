@@ -4,7 +4,9 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.FirebaseAuth
 import com.sidm.easyscan.data.model.DocumentDTO
+import java.sql.Timestamp
 import java.util.*
 
 class FirebaseViewModel: ViewModel() {
