@@ -1,9 +1,7 @@
 package com.sidm.easyscan.presentation.adapters
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.RelativeLayout
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -16,11 +14,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.LinearLayout
 import android.widget.Toast
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat.startActivity
-import com.firebase.ui.auth.AuthUI.getApplicationContext
 import com.sidm.easyscan.presentation.ui.DetailsActivity
-import com.sidm.easyscan.presentation.ui.MainActivity
 
 
 class DocumentsAdapter : ListAdapter<DocumentDTO, DocumentsAdapter.ItemsViewHolder>(DiffCallback()) {
@@ -51,46 +46,36 @@ class DocumentsAdapter : ListAdapter<DocumentDTO, DocumentsAdapter.ItemsViewHold
     }
 
     class ItemsViewHolder
-        constructor(itemBinding: ItemDocumentBinding) :
+    constructor(itemBinding: ItemDocumentBinding) :
 
         RecyclerView.ViewHolder(itemBinding.root) {
 
-            private var bindingIncoming: ItemDocumentBinding? = itemBinding
+        private var bindingIncoming: ItemDocumentBinding? = itemBinding
 
-            private val requestOptions = RequestOptions()
-                .placeholder(R.drawable.ic_dummy)
-                .error(R.drawable.ic_dummy)
+        private val requestOptions = RequestOptions()
+            .placeholder(R.drawable.ic_dummy)
+            .error(R.drawable.ic_dummy)
 
-            fun bind(documentDTO: DocumentDTO) {
-                Glide.with(itemView.context)
-                    .load(documentDTO.image_url)
-                    .apply(requestOptions)
-                    .into(bindingIncoming?.imageView!!)
-                bindingIncoming?.imageView?.contentDescription = documentDTO.image_url
-                bindingIncoming?.tvUser?.text = documentDTO.user
-                bindingIncoming?.tvTimestamp?.text = documentDTO.timestamp
-                bindingIncoming?.tvProcessedText?.text = documentDTO.processed_text
-                bindingIncoming?.tvId?.text = documentDTO.id
+        fun bind(documentDTO: DocumentDTO) {
+            Glide.with(itemView.context)
+                .load(documentDTO.image_url)
+                .apply(requestOptions)
+                .into(bindingIncoming?.imageView!!)
+            bindingIncoming?.tvUser?.text = documentDTO.user
+            bindingIncoming?.tvTimestamp?.text = documentDTO.timestamp
+            bindingIncoming?.tvProcessedText?.text = documentDTO.processed_text
+            bindingIncoming?.tvId?.text = documentDTO.id
 
-            }
+        }
 
-            init {
-                itemView.findViewById<LinearLayout>(R.id.ll_message_container) .setOnClickListener {
-                    Toast.makeText(
-                        itemView.context,
-                        "TODO: Implement details screen",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    val b = Bundle()
-                    b.putString("image_url", bindingIncoming?.imageView?.contentDescription.toString())
-                    b.putString("processed_text", bindingIncoming?.tvProcessedText?.text.toString())
-                    b.putString("id", bindingIncoming?.tvId?.text.toString())
+        init {
+            itemView.findViewById<LinearLayout>(R.id.ll_message_container) .setOnClickListener {
 
-                    val intent = Intent(itemView.context, DetailsActivity::class.java)
-                    intent.putExtras(b)
-                    startActivity(itemView.context, intent, null)
-                }
+                val intent = Intent(itemView.context, DetailsActivity::class.java)
+                intent.putExtra("id", bindingIncoming?.tvId?.text)
+                startActivity(itemView.context, intent, null)
             }
         }
+    }
 
 }

@@ -17,45 +17,48 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import com.sidm.easyscan.data.FirebaseViewModel
+import com.sidm.easyscan.data.model.DocumentDTO
 
 
 class DetailsActivity : AppCompatActivity() {
 
-    private lateinit var processed_text: String
-    private lateinit var image_url: String
     private lateinit var id: String
+    private val viewModel: FirebaseViewModel = FirebaseViewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(com.sidm.easyscan.R.layout.activity_details)
 
-        val b: Bundle? = intent.extras
-        processed_text = b?.get("processed_text").toString()
-        image_url = b?.get("image_url").toString()
-        id = b?.get("id").toString()
+        id = intent.extras?.get("id").toString()
+        viewModel.getSpecificDocument(id).observe(this, {documentDTO ->
+            findViewById<TextView>(com.sidm.easyscan.R.id.tv_test)?.text = documentDTO.processed_text
+            findViewById<TextView>(com.sidm.easyscan.R.id.et_test)?.text = documentDTO.processed_text
 
-        findViewById<TextView>(com.sidm.easyscan.R.id.tv_test)?.text = processed_text
-        findViewById<TextView>(com.sidm.easyscan.R.id.et_test)?.text = processed_text
+            findViewById<TextView>(com.sidm.easyscan.R.id.tv_blocks)?.text = documentDTO.blocks
+            findViewById<TextView>(com.sidm.easyscan.R.id.tv_lines)?.text = documentDTO.lines
+            findViewById<TextView>(com.sidm.easyscan.R.id.tv_words)?.text = documentDTO.words
+            findViewById<TextView>(com.sidm.easyscan.R.id.tv_lang)?.text = documentDTO.language
 
-        val image_view = findViewById<ImageView>(com.sidm.easyscan.R.id.iv_photo_details)
+            val image_view = findViewById<ImageView>(com.sidm.easyscan.R.id.iv_photo_details)
 
-        Glide.with(this)
-            .load(image_url)
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
-            .fitCenter()
-            .into(image_view)
+            Glide.with(this)
+                .load(documentDTO.image_url)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .fitCenter()
+                .into(image_view)
 
-        findViewById<FloatingActionButton>(com.sidm.easyscan.R.id.fab_edit).setOnClickListener {
-            val switcher = findViewById<View>(com.sidm.easyscan.R.id.my_switcher) as ViewSwitcher
-            switcher.showNext() //or switcher.showPrevious();
+            findViewById<FloatingActionButton>(com.sidm.easyscan.R.id.fab_edit).setOnClickListener {
+                val switcher = findViewById<View>(com.sidm.easyscan.R.id.my_switcher) as ViewSwitcher
+                switcher.showNext() //or switcher.showPrevious();
 
-            val myTV = switcher.findViewById<View>(com.sidm.easyscan.R.id.tv_test) as TextView
-            myTV.text = processed_text
-        }
-
+                val myTV = switcher.findViewById<View>(com.sidm.easyscan.R.id.tv_test) as TextView
+                myTV.text = documentDTO.processed_text
+            }
+        })
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(com.sidm.easyscan.R.menu.details_appbar, menu)
         return true

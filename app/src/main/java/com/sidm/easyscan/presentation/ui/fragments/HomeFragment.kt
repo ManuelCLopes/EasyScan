@@ -37,6 +37,7 @@ import android.content.ContentValues
 
 import android.os.Build
 import android.os.Environment
+import com.google.mlkit.nl.languageid.LanguageIdentification
 import java.io.OutputStream
 
 
@@ -48,7 +49,8 @@ class HomeFragment : Fragment() {
     private var imageUri: Uri? = null
     private var processedText: String? = ""
     private lateinit var firebaseViewModel: FirebaseViewModel
-
+    private val languageIdentification = LanguageIdentification.getClient()
+    private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -97,7 +99,7 @@ class HomeFragment : Fragment() {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == AppCompatActivity.RESULT_OK) {
             val imageBitmap = data?.extras?.get("data") as Bitmap
 
-            imageUri = context?.let { getImageUriFromBitmap(it, imageBitmap) }
+            imageUri = context?.let { getImageUriFromBitmap(imageBitmap) }
             imageUri?.let {
                 processText(it)
 
@@ -152,11 +154,27 @@ class HomeFragment : Fragment() {
     private fun processText(imageUri: Uri){
 
         val inputImage = InputImage.fromFilePath(requireContext(), imageUri)
-        val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+        var blocks: Int
+        var nLines = 0
+        var nWords = 0
+        var language: String? = ""
         recognizer.process(inputImage)
             .addOnSuccessListener { visionText ->
                 processedText = visionText.text
-                firebaseViewModel.createDocument(imageUri, processedText!!)
+                blocks = visionText.textBlocks.size
+                for (i in visionText.textBlocks.indices) {
+                    val lines = visionText.textBlocks[i].lines
+                    nLines += lines.size
+                    for (j in lines.indices) {
+                        val words = lines[j].elements
+                        nWords += words.size
+                    }
+                }
+                languageIdentification.identifyLanguage(visionText.text)
+                    .addOnSuccessListener {
+                        language = it.toString()
+                        firebaseViewModel.createDocument(imageUri, processedText!!, blocks.toString(), nLines.toString(), nWords.toString(), language!!)
+                    }
                 val view: View = requireView()
                 toggleNewDoc(view)
                 view.findViewById<TextView>(R.id.tv_new_processed_text).text = processedText
@@ -182,22 +200,23 @@ class HomeFragment : Fragment() {
 
     private fun loadLastDocument() {
         firebaseViewModel.getLastDocument().observeOnce(this.requireActivity(), { documentDTO ->
-            val view: View = requireView()
-            view.findViewById<TextView>(R.id.tv_last_user).text = documentDTO.user
-            view.findViewById<TextView>(R.id.tv_last_timestamp).text = documentDTO.timestamp
-            view.findViewById<TextView>(R.id.tv_last_processed_text).text =
-                documentDTO.processed_text
+            documentDTO?.let {
+                val view: View = requireView()
+                view.findViewById<TextView>(R.id.tv_last_user).text = documentDTO.user
+                view.findViewById<TextView>(R.id.tv_last_timestamp).text = documentDTO.timestamp
+                view.findViewById<TextView>(R.id.tv_last_processed_text).text =
+                    documentDTO.processed_text
 
 
-            val requestOptions = RequestOptions()
-                .placeholder(R.drawable.ic_dummy)
-                .error(R.drawable.ic_dummy)
+                val requestOptions = RequestOptions()
+                    .placeholder(R.drawable.ic_dummy)
+                    .error(R.drawable.ic_dummy)
 
-            Glide.with(view.context)
-                .load(documentDTO.image_url)
-                .apply(requestOptions)
-                .into(view.findViewById(R.id.iv_last_image))
-
+                Glide.with(view.context)
+                    .load(documentDTO.image_url)
+                    .apply(requestOptions)
+                    .into(view.findViewById(R.id.iv_last_image))
+            }
         })
     }
 
@@ -286,7 +305,7 @@ class HomeFragment : Fragment() {
         builder.create().show()
     }
 
-    private fun getImageUriFromBitmap(context: Context, bitmap: Bitmap): Uri {
+    private fun getImageUriFromBitmap(bitmap: Bitmap): Uri {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) saveImageInQ(bitmap)
         else saveImageOldSdk(bitmap)
 
@@ -294,8 +313,8 @@ class HomeFragment : Fragment() {
 
     private fun saveImageInQ(bitmap: Bitmap):Uri {
         val filename = "IMG_${System.currentTimeMillis()}.jpg"
-        var fos: OutputStream? = null
-        var imageUri: Uri? = null
+        var fos: OutputStream?
+        var imageUri: Uri?
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
             put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg")

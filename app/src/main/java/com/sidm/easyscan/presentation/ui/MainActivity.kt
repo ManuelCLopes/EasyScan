@@ -44,11 +44,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         if (currentFragment == 0)
-            menuInflater.inflate(com.sidm.easyscan.R.menu.main_appbar, menu)
+            menuInflater.inflate(R.menu.main_appbar, menu)
         else
-            menuInflater.inflate(com.sidm.easyscan.R.menu.repository_appbar, menu)
+            menuInflater.inflate(R.menu.repository_appbar, menu)
 
         return true
     }
