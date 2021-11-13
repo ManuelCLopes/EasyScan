@@ -124,4 +124,9 @@ class FirebaseViewModel: ViewModel() {
         firebaseRepository.createDocument(filename, imageUri, tempDoc)
     }
 
+    fun updateDocument(tempDoc: DocumentDTO){
+
+        firebaseRepository.updateDocument(tempDoc)
+    }
+
 }

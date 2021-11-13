@@ -25,7 +25,7 @@ import com.sidm.easyscan.data.FirebaseViewModel
 class DetailsActivity : AppCompatActivity() {
 
     private lateinit var id: String
-    private val viewModel: FirebaseViewModel = FirebaseViewModel()
+    private val firebaseViewModel: FirebaseViewModel = FirebaseViewModel()
 
     private var editMode: Boolean = false
 
@@ -36,7 +36,7 @@ class DetailsActivity : AppCompatActivity() {
         val tv = findViewById<TextView>(R.id.tv_test)
         val et = findViewById<EditText>(R.id.et_test)
         id = intent.extras?.get("id").toString()
-        viewModel.getSpecificDocument(id).observe(this, {documentDTO ->
+        firebaseViewModel.getSpecificDocument(id).observe(this, {documentDTO ->
             tv.text = documentDTO.processed_text
 
             findViewById<TextView>(R.id.tv_blocks)?.text = documentDTO.blocks
@@ -73,6 +73,8 @@ class DetailsActivity : AppCompatActivity() {
 
             fabEdit.setOnClickListener {
                 if(editMode){
+                    documentDTO.processed_text = et.text.toString()
+                    firebaseViewModel.updateDocument(documentDTO)
                     fabEdit.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_edit, null))
                     tv.visibility = View.VISIBLE
                     fabClose.visibility = View.GONE

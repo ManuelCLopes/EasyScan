@@ -2,16 +2,11 @@ package com.sidm.easyscan.data
 
 import android.net.Uri
 import android.util.Log
-import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.sidm.easyscan.data.model.DocumentDTO
-import java.sql.Timestamp
 import java.util.*
 
 
@@ -63,6 +58,25 @@ class FirebaseRepository{
 
         firestoreDB.collection("DocumentCollection")
             .add(doc)
+            .addOnSuccessListener {
+                return@addOnSuccessListener
+            }
+    }
+    fun updateDocument(tempDoc: DocumentDTO){
+
+        val doc = hashMapOf(
+            "user" to tempDoc.user,
+            "timestamp" to tempDoc.timestamp,
+            "image_url" to tempDoc.image_url,
+            "processed_text" to tempDoc.processed_text,
+            "blocks" to tempDoc.blocks,
+            "lines" to tempDoc.lines,
+            "words" to tempDoc.words,
+            "language" to tempDoc.language
+        )
+
+        firestoreDB.collection("DocumentCollection")
+            .document(tempDoc.id).update(doc as Map<String, Any>)
             .addOnSuccessListener {
                 return@addOnSuccessListener
             }

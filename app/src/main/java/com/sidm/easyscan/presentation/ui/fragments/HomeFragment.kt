@@ -102,7 +102,7 @@ class HomeFragment : Fragment() {
 
             imageUri = context?.let { getImageUriFromBitmap(imageBitmap) }
             imageUri?.let {
-                processText(it)
+                processImage(it)
 
                 requireView().findViewById<ImageView>(R.id.iv_new_image_doc)
                     .setImageBitmap(imageBitmap)
@@ -111,7 +111,7 @@ class HomeFragment : Fragment() {
             if (requestCode == REQUEST_READ_STORAGE && resultCode == AppCompatActivity.RESULT_OK) {
                 imageUri = data?.data
                 imageUri?.let {
-                    processText(it)
+                    processImage(it)
 
                     requireView().findViewById<ImageView>(R.id.iv_new_image_doc)
                         .setImageURI(imageUri)// handle chosen image
@@ -152,7 +152,7 @@ class HomeFragment : Fragment() {
     /**
      * Method that returns processed text from an image
      */
-    private fun processText(imageUri: Uri){
+    private fun processImage(imageUri: Uri){
 
         val inputImage = InputImage.fromFilePath(requireContext(), imageUri)
         var blocks: Int
