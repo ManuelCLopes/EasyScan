@@ -1,7 +1,10 @@
 package com.sidm.easyscan.presentation.adapters
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -10,11 +13,6 @@ import com.bumptech.glide.request.RequestOptions
 import com.sidm.easyscan.R
 import com.sidm.easyscan.data.model.DocumentDTO
 import com.sidm.easyscan.databinding.ItemDocumentBinding
-import android.content.Intent
-import android.os.Bundle
-import android.widget.LinearLayout
-import android.widget.Toast
-import androidx.core.content.ContextCompat.startActivity
 import com.sidm.easyscan.presentation.ui.DetailsActivity
 
 
@@ -63,13 +61,16 @@ class DocumentsAdapter : ListAdapter<DocumentDTO, DocumentsAdapter.ItemsViewHold
                 .into(bindingIncoming?.imageView!!)
             bindingIncoming?.tvUser?.text = documentDTO.user
             bindingIncoming?.tvTimestamp?.text = documentDTO.timestamp
-            bindingIncoming?.tvProcessedText?.text = documentDTO.processed_text
+            bindingIncoming?.tvProcessedText?.text =
+                if(documentDTO.processed_text.length > 20)
+                        (documentDTO.processed_text.subSequence(0, 20).toString() + "...")
+                else
+                    documentDTO.processed_text
             bindingIncoming?.tvId?.text = documentDTO.id
-
         }
 
         init {
-            itemView.findViewById<LinearLayout>(R.id.ll_message_container) .setOnClickListener {
+            itemView.findViewById<CardView>(R.id.ll_message_container) .setOnClickListener {
 
                 val intent = Intent(itemView.context, DetailsActivity::class.java)
                 intent.putExtra("id", bindingIncoming?.tvId?.text)
@@ -77,5 +78,4 @@ class DocumentsAdapter : ListAdapter<DocumentDTO, DocumentsAdapter.ItemsViewHold
             }
         }
     }
-
 }

@@ -5,20 +5,21 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import android.widget.ViewSwitcher
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.res.ResourcesCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import com.sidm.easyscan.R
 import com.sidm.easyscan.data.FirebaseViewModel
-import com.sidm.easyscan.data.model.DocumentDTO
 
 
 class DetailsActivity : AppCompatActivity() {
@@ -26,48 +27,79 @@ class DetailsActivity : AppCompatActivity() {
     private lateinit var id: String
     private val viewModel: FirebaseViewModel = FirebaseViewModel()
 
+    private var editMode: Boolean = false
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(com.sidm.easyscan.R.layout.activity_details)
-
+        setContentView(R.layout.activity_details)
+        val tv = findViewById<TextView>(R.id.tv_test)
+        val et = findViewById<EditText>(R.id.et_test)
         id = intent.extras?.get("id").toString()
         viewModel.getSpecificDocument(id).observe(this, {documentDTO ->
-            findViewById<TextView>(com.sidm.easyscan.R.id.tv_test)?.text = documentDTO.processed_text
-            findViewById<TextView>(com.sidm.easyscan.R.id.et_test)?.text = documentDTO.processed_text
+            tv.text = documentDTO.processed_text
 
-            findViewById<TextView>(com.sidm.easyscan.R.id.tv_blocks)?.text = documentDTO.blocks
-            findViewById<TextView>(com.sidm.easyscan.R.id.tv_lines)?.text = documentDTO.lines
-            findViewById<TextView>(com.sidm.easyscan.R.id.tv_words)?.text = documentDTO.words
-            findViewById<TextView>(com.sidm.easyscan.R.id.tv_lang)?.text = documentDTO.language
+            findViewById<TextView>(R.id.tv_blocks)?.text = documentDTO.blocks
+            findViewById<TextView>(R.id.tv_lines)?.text = documentDTO.lines
+            findViewById<TextView>(R.id.tv_words)?.text = documentDTO.words
+            findViewById<TextView>(R.id.tv_lang)?.text = documentDTO.language
 
-            val image_view = findViewById<ImageView>(com.sidm.easyscan.R.id.iv_photo_details)
+            val imageView = findViewById<ImageView>(R.id.iv_photo_details)
 
             Glide.with(this)
                 .load(documentDTO.image_url)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .fitCenter()
-                .into(image_view)
+                .into(imageView)
 
-            findViewById<FloatingActionButton>(com.sidm.easyscan.R.id.fab_edit).setOnClickListener {
-                val switcher = findViewById<View>(com.sidm.easyscan.R.id.my_switcher) as ViewSwitcher
-                switcher.showNext() //or switcher.showPrevious();
+            val fabEdit = findViewById<FloatingActionButton>(R.id.fab_edit)
+            val fabClose = findViewById<FloatingActionButton>(R.id.fab_close)
 
-                val myTV = switcher.findViewById<View>(com.sidm.easyscan.R.id.tv_test) as TextView
-                myTV.text = documentDTO.processed_text
+            fabClose.setOnClickListener {
+
+                fabEdit.setImageDrawable(
+                    ResourcesCompat.getDrawable(
+                        resources,
+                        R.drawable.ic_edit,
+                        null
+                    )
+                )
+                tv.visibility = View.VISIBLE
+                fabClose.visibility = View.GONE
+                et.visibility = View.GONE
+
+                editMode = !editMode
+            }
+
+            fabEdit.setOnClickListener {
+                if(editMode){
+                    fabEdit.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_edit, null))
+                    tv.visibility = View.VISIBLE
+                    fabClose.visibility = View.GONE
+                    et.visibility = View.GONE
+                    Toast.makeText(applicationContext, "Content saved successfully!", Toast.LENGTH_LONG).show()
+                }else{
+                    fabEdit.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_check, null))
+                    et.setText(tv.text)
+                    tv.visibility = View.GONE
+                    fabClose.visibility = View.VISIBLE
+                    et.visibility = View.VISIBLE
+                }
+                editMode = !editMode
             }
         })
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(com.sidm.easyscan.R.menu.details_appbar, menu)
+        menuInflater.inflate(R.menu.details_appbar, menu)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         val id: Int = item.itemId
-        return if (id == com.sidm.easyscan.R.id.btn_delete) {
+        return if (id == R.id.btn_delete) {
             showAppDialog()
             true
         } else super.onOptionsItemSelected(item)

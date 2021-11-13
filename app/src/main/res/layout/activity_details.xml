@@ -24,25 +24,25 @@
             android:scaleType="centerCrop"
             tools:srcCompat="@mipmap/ic_launcher" />
 
-        <ViewSwitcher
-            android:id="@+id/my_switcher"
+
+        <TextView
+            android:id="@+id/tv_test"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:textSize="14sp"
+            android:layout_margin="8dp"/>
+
+        <EditText
+            android:id="@+id/et_test"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp">
+            android:inputType="textMultiLine"
+            android:textSize="14sp"
+            android:layout_margin="8dp"
+            android:importantForAutofill="no"
+            tools:ignore="LabelFor"
+            android:visibility="gone"/>
 
-            <TextView
-                android:id="@+id/tv_test"
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"/>
-
-            <EditText
-                android:id="@+id/et_test"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textMultiLine"
-                android:importantForAutofill="no"
-                tools:ignore="LabelFor" />
-        </ViewSwitcher>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -125,18 +125,42 @@
 
         </LinearLayout>
 
-
     </LinearLayout>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_edit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom"
-        android:layout_margin="32dp"
-        android:contentDescription="@string/floatingButtonCamera"
-        android:src="@drawable/ic_edit"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/relativeLayout"
+        android:layout_width="200dp"
+        android:layout_height="112dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:backgroundTint="@color/colorSecondaryLight"
+            android:contentDescription="Cancel"
+            android:src="@drawable/ic_close"
+            app:fabSize="mini"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/fab_edit"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="gone"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:layout_margin="32dp"
+            android:contentDescription="Edit"
+            android:src="@drawable/ic_edit"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

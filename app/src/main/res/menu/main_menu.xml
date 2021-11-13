@@ -11,7 +11,7 @@
     <item
         android:id="@+id/repository"
         android:enabled="true"
-        android:icon="@drawable/ic_info"
+        android:icon="@drawable/ic_history"
         android:title="@string/main_menu_about"/>
 
 </menu>

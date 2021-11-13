@@ -1,43 +1,44 @@
 package com.sidm.easyscan.presentation.ui.fragments
 
 import android.Manifest
-import android.content.Context
-import android.content.Intent
+import android.R.attr.label
+import android.content.*
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
-import android.view.*
-import android.widget.*
+import android.view.LayoutInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.firebase.auth.FirebaseAuth
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-import com.sidm.easyscan.R
-import com.sidm.easyscan.presentation.ui.LoginActivity
-import java.io.ByteArrayOutputStream
-import android.R.attr.label
-import android.content.ClipData
-import android.content.ClipboardManager
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.sidm.easyscan.data.FirebaseViewModel
-import android.content.ContentValues
-
-import android.os.Build
-import android.os.Environment
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.auth.FirebaseAuth
 import com.google.mlkit.nl.languageid.LanguageIdentification
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import com.sidm.easyscan.R
+import com.sidm.easyscan.data.FirebaseViewModel
+import com.sidm.easyscan.presentation.ui.LoginActivity
+import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 
 
@@ -202,10 +203,12 @@ class HomeFragment : Fragment() {
         firebaseViewModel.getLastDocument().observeOnce(this.requireActivity(), { documentDTO ->
             documentDTO?.let {
                 val view: View = requireView()
-                view.findViewById<TextView>(R.id.tv_last_user).text = documentDTO.user
                 view.findViewById<TextView>(R.id.tv_last_timestamp).text = documentDTO.timestamp
                 view.findViewById<TextView>(R.id.tv_last_processed_text).text =
-                    documentDTO.processed_text
+                    if(documentDTO.processed_text.length > 20)
+                        (documentDTO.processed_text.subSequence(0, 20).toString() + "...")
+                    else
+                        documentDTO.processed_text
 
 
                 val requestOptions = RequestOptions()
