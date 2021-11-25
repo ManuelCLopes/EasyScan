@@ -90,6 +90,11 @@ dependencies {
     // Annotation processor
     kapt("androidx.lifecycle:lifecycle-compiler:2.4.0")
 
+    implementation 'com.google.code.gson:gson:2.8.6'
+
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.5.2"
 
 
     testImplementation 'junit:junit:4.13.2'

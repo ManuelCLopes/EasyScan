@@ -2,13 +2,16 @@ package com.sidm.easyscan.presentation.ui.fragments
 
 import android.Manifest
 import android.R.attr.label
-import android.content.*
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,7 +19,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -31,15 +34,14 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
-import com.google.mlkit.nl.languageid.LanguageIdentification
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.sidm.easyscan.R
 import com.sidm.easyscan.data.FirebaseViewModel
+import com.sidm.easyscan.data.ImageProcessing
 import com.sidm.easyscan.presentation.ui.LoginActivity
-import java.io.ByteArrayOutputStream
-import java.io.OutputStream
+import com.sidm.easyscan.util.UtilFunctions
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 private const val REQUEST_IMAGE_CAPTURE = 100
@@ -50,8 +52,9 @@ class HomeFragment : Fragment() {
     private var imageUri: Uri? = null
     private var processedText: String? = ""
     private lateinit var firebaseViewModel: FirebaseViewModel
-    private val languageIdentification = LanguageIdentification.getClient()
-    private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+    private val imageProcessing: ImageProcessing = ImageProcessing()
+    private val utilFunctions: UtilFunctions = UtilFunctions()
+    private var spinner: ProgressBar? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -66,6 +69,8 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        spinner = requireView().findViewById(R.id.progressBar)
+
 
         view.findViewById<FloatingActionButton>(R.id.fab_camera).setOnClickListener {
             openNativeCamera()
@@ -73,6 +78,7 @@ class HomeFragment : Fragment() {
 
         view.findViewById<FloatingActionButton>(R.id.fab_upload).setOnClickListener {
             selectImageFromGallery()
+
         }
 
         view.findViewById<ImageView>(R.id.btn_copy).setOnClickListener {
@@ -91,7 +97,9 @@ class HomeFragment : Fragment() {
             firebaseViewModel.getLastDocument().observeOnce(this.requireActivity(), {
                 deleteDocument(it.id)
             })
-            toggleNewDoc(view)
+            spinner!!.visibility = View.GONE
+
+            utilFunctions.toggleNewDoc(view)
         }
     }
 
@@ -99,37 +107,40 @@ class HomeFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == AppCompatActivity.RESULT_OK) {
             val imageBitmap = data?.extras?.get("data") as Bitmap
-
-            imageUri = context?.let { getImageUriFromBitmap(imageBitmap) }
+            val scaledBitmap = utilFunctions.scaleBitmapDown(imageBitmap, 640)
+            imageUri = context?.let { utilFunctions.getImageUriFromBitmap(requireContext(), scaledBitmap) }
             imageUri?.let {
-                processImage(it)
+                spinner!!.visibility = View.VISIBLE
 
+                CoroutineScope(Dispatchers.IO).launch {
+                    processImage(it, scaledBitmap)
+                }
                 requireView().findViewById<ImageView>(R.id.iv_new_image_doc)
-                    .setImageBitmap(imageBitmap)
+                    .setImageBitmap(scaledBitmap)
             }
         } else
             if (requestCode == REQUEST_READ_STORAGE && resultCode == AppCompatActivity.RESULT_OK) {
                 imageUri = data?.data
+                val imageBitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    ImageDecoder.decodeBitmap(ImageDecoder.createSource(requireContext().contentResolver, imageUri!!))
+                } else {
+                    MediaStore.Images.Media.getBitmap(requireContext().contentResolver, imageUri)
+                }
+                val scaledBitmap = utilFunctions.scaleBitmapDown(imageBitmap, 640)
+
                 imageUri?.let {
-                    processImage(it)
+                    spinner!!.visibility = View.VISIBLE
+                    processImage(it, scaledBitmap)
 
                     requireView().findViewById<ImageView>(R.id.iv_new_image_doc)
                         .setImageURI(imageUri)// handle chosen image
+
                 }
             }
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    private fun toggleNewDoc(view: View) {
-        if (view.findViewById<LinearLayout>(R.id.new_doc).visibility == View.GONE) {
-            view.findViewById<LinearLayout>(R.id.new_doc).visibility = View.VISIBLE
-            view.findViewById<TextView>(R.id.tv_title).visibility = View.VISIBLE
-        } else {
-            view.findViewById<LinearLayout>(R.id.new_doc).visibility = View.GONE
-            view.findViewById<TextView>(R.id.tv_title).visibility = View.GONE
-        }
 
-    }
 
     private fun copyToClipboard(text: String) {
         val clipboard: ClipboardManager? =
@@ -152,39 +163,16 @@ class HomeFragment : Fragment() {
     /**
      * Method that returns processed text from an image
      */
-    private fun processImage(imageUri: Uri){
+    private fun processImage(imageUri: Uri, imageBitmap: Bitmap?) {
+        val context = requireContext()
 
-        val inputImage = InputImage.fromFilePath(requireContext(), imageUri)
-        var blocks: Int
-        var nLines = 0
-        var nWords = 0
-        var language: String? = ""
-        recognizer.process(inputImage)
-            .addOnSuccessListener { visionText ->
-                processedText = visionText.text
-                blocks = visionText.textBlocks.size
-                for (i in visionText.textBlocks.indices) {
-                    val lines = visionText.textBlocks[i].lines
-                    nLines += lines.size
-                    for (j in lines.indices) {
-                        val words = lines[j].elements
-                        nWords += words.size
-                    }
-                }
-                languageIdentification.identifyLanguage(visionText.text)
-                    .addOnSuccessListener {
-                        language = it.toString()
-                        firebaseViewModel.createDocument(imageUri, processedText!!, blocks.toString(), nLines.toString(), nWords.toString(), language!!)
-                    }
-                val view: View = requireView()
-                toggleNewDoc(view)
-                view.findViewById<TextView>(R.id.tv_new_processed_text).text = processedText
-            }
-            .addOnFailureListener { e ->
-                // Task failed with an exception
-                Log.e("Error", e.message.toString())
-            }
+        if (!utilFunctions.isOnline(context)) {
+            imageProcessing.getTextOffline(context, imageUri, firebaseViewModel, requireView())
+        } else {
+            imageProcessing.getTextOnline(imageUri, imageBitmap!!, firebaseViewModel, requireView())
+        }
     }
+
 
     /**
      * Calling this method will open the gallery.
@@ -283,7 +271,7 @@ class HomeFragment : Fragment() {
 
         val id: Int = item.itemId
         return if (id == R.id.btn_logout) {
-            showAppDialog()
+            showLogoutDialog()
             true
         } else super.onOptionsItemSelected(item)
     }
@@ -291,7 +279,7 @@ class HomeFragment : Fragment() {
     /**
      * Calling this method will show a dialog.
      */
-    private fun showAppDialog() {
+    private fun showLogoutDialog() {
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Logout")
         builder.setMessage("Are you sure you want to logout?")
@@ -306,53 +294,6 @@ class HomeFragment : Fragment() {
             }
         }
         builder.create().show()
-    }
-
-    private fun getImageUriFromBitmap(bitmap: Bitmap): Uri {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) saveImageInQ(bitmap)
-        else saveImageOldSdk(bitmap)
-
-    }
-
-    private fun saveImageInQ(bitmap: Bitmap):Uri {
-        val filename = "IMG_${System.currentTimeMillis()}.jpg"
-        var fos: OutputStream?
-        var imageUri: Uri?
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg")
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                put(MediaStore.Video.Media.IS_PENDING, 1)
-            }
-        }
-
-        val contentResolver = context?.contentResolver
-
-        contentResolver.also { resolver ->
-            imageUri = resolver?.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-            fos = imageUri?.let { resolver?.openOutputStream(it) }
-        }
-
-        fos?.use { bitmap.compress(Bitmap.CompressFormat.JPEG, 70, it) }
-
-        contentValues.clear()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            contentValues.put(MediaStore.Video.Media.IS_PENDING, 0)
-        }
-        contentResolver?.update(imageUri!!, contentValues, null, null)
-
-        return imageUri!!
-    }
-
-    private fun saveImageOldSdk(bitmap:Bitmap): Uri{
-        val bytes = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
-        val path =
-            MediaStore.Images.Media.insertImage(context?.contentResolver, bitmap, "Title", null)
-        return Uri.parse(path.toString())
     }
 
 }
