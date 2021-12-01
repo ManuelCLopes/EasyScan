@@ -50,7 +50,6 @@ class FirebaseRepository{
             "timestamp" to tempDoc.timestamp,
             "image_url" to imageUrl,
             "processed_text" to tempDoc.processed_text,
-            "blocks" to tempDoc.blocks,
             "lines" to tempDoc.lines,
             "words" to tempDoc.words,
             "language" to tempDoc.language
@@ -69,7 +68,6 @@ class FirebaseRepository{
             "timestamp" to tempDoc.timestamp,
             "image_url" to tempDoc.image_url,
             "processed_text" to tempDoc.processed_text,
-            "blocks" to tempDoc.blocks,
             "lines" to tempDoc.lines,
             "words" to tempDoc.words,
             "language" to tempDoc.language

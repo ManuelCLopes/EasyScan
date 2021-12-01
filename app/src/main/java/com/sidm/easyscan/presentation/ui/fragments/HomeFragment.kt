@@ -18,10 +18,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -37,11 +34,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.sidm.easyscan.R
 import com.sidm.easyscan.data.FirebaseViewModel
 import com.sidm.easyscan.data.ImageProcessing
+import com.sidm.easyscan.presentation.ui.DetailsActivity
 import com.sidm.easyscan.presentation.ui.LoginActivity
 import com.sidm.easyscan.util.UtilFunctions
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 
 private const val REQUEST_IMAGE_CAPTURE = 100
@@ -55,6 +50,7 @@ class HomeFragment : Fragment() {
     private val imageProcessing: ImageProcessing = ImageProcessing()
     private val utilFunctions: UtilFunctions = UtilFunctions()
     private var spinner: ProgressBar? = null
+    private var lastDocId: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -101,6 +97,11 @@ class HomeFragment : Fragment() {
 
             utilFunctions.toggleNewDoc(view)
         }
+        view.findViewById<LinearLayout>(R.id.rv_basic_info).setOnClickListener {
+            val intent = Intent(context, DetailsActivity::class.java)
+            intent.putExtra("id", lastDocId)
+            ContextCompat.startActivity(requireContext(), intent, null)
+        }
     }
 
 
@@ -112,9 +113,8 @@ class HomeFragment : Fragment() {
             imageUri?.let {
                 spinner!!.visibility = View.VISIBLE
 
-                CoroutineScope(Dispatchers.IO).launch {
-                    processImage(it, scaledBitmap)
-                }
+                processImage(it, scaledBitmap)
+
                 requireView().findViewById<ImageView>(R.id.iv_new_image_doc)
                     .setImageBitmap(scaledBitmap)
             }
@@ -191,6 +191,7 @@ class HomeFragment : Fragment() {
         firebaseViewModel.getLastDocument().observeOnce(this.requireActivity(), { documentDTO ->
             documentDTO?.let {
                 val view: View = requireView()
+                lastDocId = documentDTO.id
                 view.findViewById<TextView>(R.id.tv_last_timestamp).text = documentDTO.timestamp
                 view.findViewById<TextView>(R.id.tv_last_processed_text).text =
                     if(documentDTO.processed_text.length > 20)
@@ -265,6 +266,12 @@ class HomeFragment : Fragment() {
 
     private fun deleteDocument(id: String) {
         firebaseViewModel.deleteDocument(id)
+        Toast.makeText(
+            requireContext(),
+            "Document deleted",
+            Toast.LENGTH_SHORT
+        ).show()
+        loadLastDocument()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

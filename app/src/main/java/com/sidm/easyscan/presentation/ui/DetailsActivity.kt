@@ -1,10 +1,12 @@
 package com.sidm.easyscan.presentation.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -39,10 +41,13 @@ class DetailsActivity : AppCompatActivity() {
         firebaseViewModel.getSpecificDocument(id).observe(this, {documentDTO ->
             tv.text = documentDTO.processed_text
 
-            findViewById<TextView>(R.id.tv_blocks)?.text = documentDTO.blocks
             findViewById<TextView>(R.id.tv_lines)?.text = documentDTO.lines
             findViewById<TextView>(R.id.tv_words)?.text = documentDTO.words
             findViewById<TextView>(R.id.tv_lang)?.text = documentDTO.language
+
+            findViewById<TextView>(R.id.tv_sentiment)?.text = documentDTO.sentiment
+            findViewById<TextView>(R.id.tv_sentiment_score)?.text = documentDTO.sentimentMagnitude
+            findViewById<TextView>(R.id.tv_classification)?.text = documentDTO.classification
 
             val imageView = findViewById<ImageView>(R.id.iv_photo_details)
 
@@ -86,9 +91,30 @@ class DetailsActivity : AppCompatActivity() {
                     tv.visibility = View.GONE
                     fabClose.visibility = View.VISIBLE
                     et.visibility = View.VISIBLE
+                    et.requestFocus()
+                    val imm: InputMethodManager =
+                        getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.showSoftInput(et, InputMethodManager.SHOW_IMPLICIT)
                 }
                 editMode = !editMode
             }
+
+            findViewById<ImageView>(R.id.iv_photo_details).setOnClickListener {
+                zoomImage(documentDTO.image_url)
+            }
+
+            findViewById<ImageView>(R.id.expanded_image).setOnClickListener {
+                it.visibility = View.GONE
+                fabEdit.visibility = View.VISIBLE
+                fabEdit.setImageDrawable(
+                    ResourcesCompat.getDrawable(
+                        resources,
+                        R.drawable.ic_edit,
+                        null
+                    )
+                )
+            }
+
         })
     }
 
@@ -138,6 +164,30 @@ class DetailsActivity : AppCompatActivity() {
             Log.w("TAG", "DELETE SUCCESSFUL $id")
             finish()
         }
+    }
+
+    private fun zoomImage(imageResUrl: String) {
+
+        val expandedImageView: ImageView = findViewById(R.id.expanded_image)
+        Glide.with(this)
+            .load(imageResUrl)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .fitCenter()
+            .into(expandedImageView)
+
+
+        if(editMode){
+            val et = findViewById<EditText>(R.id.et_test)
+            findViewById<TextView>(R.id.tv_test).visibility = View.VISIBLE
+            et.visibility = View.GONE
+            findViewById<FloatingActionButton>(R.id.fab_close).visibility = View.GONE
+            val imm: InputMethodManager =
+                getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(findViewById<View>(android.R.id.content).windowToken, 0)
+            editMode = !editMode
+        }
+        findViewById<FloatingActionButton>(R.id.fab_edit).visibility = View.GONE
+        expandedImageView.visibility = View.VISIBLE
     }
 
 }

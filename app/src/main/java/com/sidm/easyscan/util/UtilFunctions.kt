@@ -128,11 +128,17 @@ class UtilFunctions {
         if (view.findViewById<LinearLayout>(R.id.new_doc).visibility == View.GONE) {
             view.findViewById<LinearLayout>(R.id.new_doc).visibility = View.VISIBLE
             view.findViewById<TextView>(R.id.tv_title).visibility = View.VISIBLE
-            view.findViewById<ProgressBar>(R.id.progressBar).visibility = View.GONE
+            toggleProgressCircle(view)
 
         } else {
             view.findViewById<LinearLayout>(R.id.new_doc).visibility = View.GONE
             view.findViewById<TextView>(R.id.tv_title).visibility = View.GONE
         }
     }
+     fun toggleProgressCircle(view: View){
+         if(view.findViewById<ProgressBar>(R.id.progressBar).visibility == View.GONE)
+            view.findViewById<ProgressBar>(R.id.progressBar).visibility = View.VISIBLE
+         else
+             view.findViewById<ProgressBar>(R.id.progressBar).visibility = View.GONE
+     }
 }

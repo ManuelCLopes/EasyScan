@@ -36,10 +36,12 @@ class FirebaseViewModel: ViewModel() {
                         "${document.data?.get("timestamp")}",
                         "${document.data?.get("image_url")}",
                         "${document.data?.get("processed_text")}",
-                        "${document.data?.get("blocks")}",
                         "${document.data?.get("lines")}",
                         "${document.data?.get("words")}",
-                        "${document.data?.get("language")}"
+                        "${document.data?.get("language")}",
+                        "",
+                        "",
+                        ""
                     )
 
                     result += doc
@@ -67,10 +69,12 @@ class FirebaseViewModel: ViewModel() {
                         "${snapshot.documents[0].data?.get("timestamp")}",
                         "${snapshot.documents[0].data?.get("image_url")}",
                         "${snapshot.documents[0].data?.get("processed_text")}",
-                        "${snapshot.documents[0].data?.get("blocks")}",
                         "${snapshot.documents[0].data?.get("lines")}",
                         "${snapshot.documents[0].data?.get("words")}",
-                        "${snapshot.documents[0].data?.get("language")}"
+                        "${snapshot.documents[0].data?.get("language")}",
+                        "",
+                        "",
+                        ""
                     )
                     lastDoc.postValue(result)
                 }
@@ -92,10 +96,12 @@ class FirebaseViewModel: ViewModel() {
                     "${doc.data?.get("timestamp")}",
                     "${doc.data?.get("image_url")}",
                     "${doc.data?.get("processed_text")}",
-                    "${doc.data?.get("blocks")}",
                     "${doc.data?.get("lines")}",
                     "${doc.data?.get("words")}",
-                    "${doc.data?.get("language")}"
+                    "${doc.data?.get("language")}",
+                    "${doc.data?.get("sentiment")}",
+                    "${doc.data?.get("sentimentMagnitude")}",
+                    "${doc.data?.get("classification")}"
                 )
                 specificDoc.postValue(result)
             }
@@ -105,6 +111,7 @@ class FirebaseViewModel: ViewModel() {
 
     fun deleteDocument(id: String) {
         firebaseRepository.deleteDocument(id)
+        getLastDocument()
     }
 
     fun createDocument(imageUri: Uri, processedText: String, blocks: String, lines: String, words: String, language: String) {
@@ -114,13 +121,16 @@ class FirebaseViewModel: ViewModel() {
             "${Timestamp(System.currentTimeMillis())}",
             imageUri.path.toString(),
             processedText,
-            blocks,
             lines,
             words,
-            language
+            language,
+            "",
+            "",
+            ""
         )
 
         val filename = UUID.randomUUID().toString()
+        docs.value = docs.value?.plus(tempDoc)
         firebaseRepository.createDocument(filename, imageUri, tempDoc)
     }
 

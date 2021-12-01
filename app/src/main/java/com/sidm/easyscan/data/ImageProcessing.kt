@@ -7,6 +7,7 @@ import android.util.Base64
 import android.util.Log
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import com.google.android.gms.tasks.Task
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.gson.*
@@ -19,7 +20,7 @@ import com.sidm.easyscan.util.UtilFunctions
 import java.io.ByteArrayOutputStream
 
 class ImageProcessing {
-    private val functions: FirebaseFunctions = FirebaseFunctions.getInstance()
+    private val functions: FirebaseFunctions = FirebaseFunctions.getInstance("europe-west3")
     private val languageIdentification = LanguageIdentification.getClient()
     private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
     private val utilFunctions: UtilFunctions = UtilFunctions()
@@ -56,33 +57,48 @@ class ImageProcessing {
                 if (!task.isSuccessful) {
                     Log.d("gcloud functions", task.result.toString())
                 } else {
-                    val annotation =
-                        task.result.asJsonArray[0].asJsonObject["fullTextAnnotation"].asJsonObject
-                    processedText = annotation["text"].asString
-                    for (page in annotation["pages"].asJsonArray) {
-                        for (block in page.asJsonObject["blocks"].asJsonArray) {
-                            for (para in block.asJsonObject["paragraphs"].asJsonArray) {
-                                nLines += 1
-                                for (word in para.asJsonObject["words"].asJsonArray) {
-                                    nWords += 1
+                    if (!task.result.asJsonArray[0].asJsonObject.has("fullTextAnnotation")) {
+                        Toast.makeText(
+                            view.context,
+                            "Couldn't read any text from the image. Please try again",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        utilFunctions.toggleProgressCircle(view)
+                    } else {
+                        val annotation =
+                            task.result.asJsonArray[0].asJsonObject["fullTextAnnotation"].asJsonObject
+                        processedText = annotation["text"].asString
+                        for (page in annotation["pages"].asJsonArray) {
+                            for (block in page.asJsonObject["blocks"].asJsonArray) {
+                                for (para in block.asJsonObject["paragraphs"].asJsonArray) {
+                                    nLines += 1
+                                    for (word in para.asJsonObject["words"].asJsonArray) {
+                                        nWords += 1
+                                    }
                                 }
                             }
                         }
+
+                        val a = analyzeSentiment(processedText!!)
+                        Log.d("gcloud functions", a.toString())
+
+
+                        languageIdentification.identifyLanguage(processedText.toString())
+                            .addOnSuccessListener { lang ->
+                                firebaseViewModel.createDocument(
+                                    imageUri,
+                                    processedText!!,
+                                    "",
+                                    nLines.toString(),
+                                    nWords.toString(),
+                                    lang
+                                )
+                                utilFunctions.toggleNewDoc(view)
+                                view.findViewById<TextView>(R.id.tv_new_processed_text).text =
+                                    processedText
+                            }
                     }
                 }
-                languageIdentification.identifyLanguage(processedText.toString())
-                    .addOnSuccessListener { lang ->
-                        firebaseViewModel.createDocument(
-                            imageUri,
-                            processedText!!,
-                            "",
-                            nLines.toString(),
-                            nWords.toString(),
-                            lang
-                        )
-                        utilFunctions.toggleNewDoc(view)
-                        view.findViewById<TextView>(R.id.tv_new_processed_text).text = processedText
-                    }
             }
     }
 
@@ -95,32 +111,43 @@ class ImageProcessing {
 
         recognizer.process(inputImage)
             .addOnSuccessListener { visionText ->
-                processedText = visionText.text
-                for (i in visionText.textBlocks.indices) {
-                    val lines = visionText.textBlocks[i].lines
-                    nLines += lines.size
-                    for (j in lines.indices) {
-                        val words = lines[j].elements
-                        nWords += words.size
-                    }
-                }
+                if (visionText.text == "") {
+                    Toast.makeText(
+                        view.context,
+                        "Couldn't read any text from the image. Please try again",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    utilFunctions.toggleProgressCircle(view)
+                } else {
 
-                languageIdentification.identifyLanguage(visionText.text)
-                    .addOnSuccessListener {lang ->
-                        firebaseViewModel.createDocument(
-                            imageUri,
-                            processedText!!,
-                            "",
-                            nLines.toString(),
-                            nWords.toString(),
-                            lang
-                        )
-                        utilFunctions.toggleNewDoc(view)
-                        view.findViewById<TextView>(R.id.tv_new_processed_text).text = processedText
+                    processedText = visionText.text
+                    for (i in visionText.textBlocks.indices) {
+                        val lines = visionText.textBlocks[i].lines
+                        nLines += lines.size
+                        for (j in lines.indices) {
+                            val words = lines[j].elements
+                            nWords += words.size
+                        }
                     }
-            }
-            .addOnFailureListener { e ->
-                Log.e("Error", e.message.toString())
+
+                    languageIdentification.identifyLanguage(visionText.text)
+                        .addOnSuccessListener { lang ->
+                            firebaseViewModel.createDocument(
+                                imageUri,
+                                processedText!!,
+                                "",
+                                nLines.toString(),
+                                nWords.toString(),
+                                lang
+                            )
+                            utilFunctions.toggleNewDoc(view)
+                            view.findViewById<TextView>(R.id.tv_new_processed_text).text =
+                                processedText
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("Error", e.message.toString())
+                        }
+                }
             }
     }
 

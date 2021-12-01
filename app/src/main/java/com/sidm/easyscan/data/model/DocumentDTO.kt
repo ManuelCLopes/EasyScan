@@ -7,7 +7,9 @@ data class DocumentDTO(
     val timestamp: String,
     val image_url: String,
     var processed_text: String,
-    val blocks: String,
     val lines: String,
     val words: String,
-    val language: String)
+    val language: String,
+    val sentiment: String,
+    val sentimentMagnitude: String,
+    val classification: String)
