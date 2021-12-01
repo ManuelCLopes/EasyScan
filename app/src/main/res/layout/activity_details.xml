@@ -44,14 +44,15 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <TextView
                         android:id="@+id/tv_test"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
                         android:textSize="14sp"
-                        android:layout_margin="8dp"/>
+                        android:layout_marginTop="8dp"/>
 
                     <EditText
                         android:id="@+id/et_test"
@@ -59,7 +60,7 @@
                         android:layout_height="wrap_content"
                         android:inputType="textMultiLine"
                         android:textSize="14sp"
-                        android:layout_margin="8dp"
+                        android:layout_marginTop="8dp"
                         android:importantForAutofill="no"
                         tools:ignore="LabelFor"
                         android:visibility="gone"/>
@@ -135,62 +136,83 @@
                         android:orientation="vertical"
                         android:layout_marginTop="8dp">
 
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:orientation="vertical"
-                            android:layout_marginStart="40dp"
-                            android:padding="4dp">
-                            <TextView
-                                android:id="@+id/tv_sentiment_label"
-                                android:layout_height="wrap_content"
-                                android:layout_width="match_parent"
-                                android:text="Sentiment"
-                                android:gravity="center_horizontal"/>
-                            <TextView
-                                android:id="@+id/tv_sentiment"
-                                android:layout_height="wrap_content"
-                                android:layout_width="match_parent"
-                                android:gravity="center_horizontal"/>
-                        </LinearLayout>
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:cardBackgroundColor="@color/ocean_green">
 
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:orientation="vertical"
-                            android:layout_marginStart="40dp"
-                            android:padding="4dp">
-                            <TextView
-                                android:id="@+id/tv_sentiment_score_label"
-                                android:layout_height="wrap_content"
+                            <LinearLayout
                                 android:layout_width="match_parent"
-                                android:text="sentiment_score"
-                                android:gravity="center_horizontal"/>
-                            <TextView
-                                android:id="@+id/tv_sentiment_score"
                                 android:layout_height="wrap_content"
-                                android:layout_width="match_parent"
-                                android:gravity="center_horizontal"/>
-                        </LinearLayout>
+                                android:orientation="vertical"
+                                android:layout_margin="8dp">
 
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:orientation="vertical"
-                            android:layout_marginStart="40dp"
-                            android:padding="4dp">
-                            <TextView
-                                android:id="@+id/tv_classification_label"
-                                android:layout_height="wrap_content"
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical">
+                                    <TextView
+                                        android:id="@+id/tv_sentiment_label"
+                                        android:layout_height="wrap_content"
+                                        android:layout_width="match_parent"
+                                        android:text="Sentiment"
+                                        android:textStyle="bold"/>
+                                    <TextView
+                                        android:id="@+id/tv_sentiment"
+                                        android:layout_height="wrap_content"
+                                        android:layout_width="match_parent"/>
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical"
+                                    android:layout_marginTop="8dp">
+                                    <TextView
+                                        android:id="@+id/tv_sentiment_score_label"
+                                        android:layout_height="wrap_content"
+                                        android:layout_width="match_parent"
+                                        android:text="Sentiment Intensity"
+                                        android:textStyle="bold"/>
+                                    <TextView
+                                        android:id="@+id/tv_sentiment_score"
+                                        android:layout_height="wrap_content"
+                                        android:layout_width="match_parent"/>
+                                </LinearLayout>
+
+                            </LinearLayout>
+
+                        </androidx.cardview.widget.CardView>
+
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:cardBackgroundColor="@color/ocean_green"
+                            android:layout_marginTop="16dp">
+                            <LinearLayout
                                 android:layout_width="match_parent"
-                                android:text="classification"
-                                android:gravity="center_horizontal"/>
-                            <TextView
-                                android:id="@+id/tv_classification"
                                 android:layout_height="wrap_content"
-                                android:layout_width="match_parent"
-                                android:gravity="center_horizontal"/>
-                        </LinearLayout>
+                                android:orientation="vertical"
+                                android:layout_margin="8dp">
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:orientation="vertical">
+                                    <TextView
+                                        android:id="@+id/tv_classification_label"
+                                        android:layout_height="wrap_content"
+                                        android:layout_width="match_parent"
+                                        android:text="Classification | Confidence"
+                                        android:textStyle="bold"/>
+                                    <TextView
+                                        android:id="@+id/tv_classification"
+                                        android:layout_height="wrap_content"
+                                        android:layout_width="match_parent"/>
+                                </LinearLayout>
+
+                            </LinearLayout>
+
+                        </androidx.cardview.widget.CardView>
 
                     </LinearLayout>
 

@@ -1,5 +1,8 @@
 package com.sidm.easyscan.util
 
+import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
@@ -14,6 +17,7 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import com.sidm.easyscan.R
 import java.io.ByteArrayOutputStream
 import java.io.OutputStream
@@ -141,4 +145,13 @@ class UtilFunctions {
          else
              view.findViewById<ProgressBar>(R.id.progressBar).visibility = View.GONE
      }
+
+    fun copyToClipboard(context: Context, activity: Activity, text: String) {
+        val clipboard: ClipboardManager? =
+            activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
+        val clip = ClipData.newPlainText(android.R.attr.label.toString(), text)
+        clipboard?.setPrimaryClip(clip)
+
+        Toast.makeText(context, "Text copied to clipboard", Toast.LENGTH_LONG).show()
+    }
 }

@@ -47,7 +47,8 @@ class DetailsActivity : AppCompatActivity() {
 
             findViewById<TextView>(R.id.tv_sentiment)?.text = documentDTO.sentiment
             findViewById<TextView>(R.id.tv_sentiment_score)?.text = documentDTO.sentimentMagnitude
-            findViewById<TextView>(R.id.tv_classification)?.text = documentDTO.classification
+            findViewById<TextView>(R.id.tv_classification)?.text =
+                separateClassificationCategories(documentDTO.classification)
 
             val imageView = findViewById<ImageView>(R.id.iv_photo_details)
 
@@ -189,5 +190,32 @@ class DetailsActivity : AppCompatActivity() {
         findViewById<FloatingActionButton>(R.id.fab_edit).visibility = View.GONE
         expandedImageView.visibility = View.VISIBLE
     }
+
+    private fun separateClassificationCategories(classificationOriginal: String): String{
+        var text = classificationOriginal
+        text = text.replace("[{", "")
+        text = text.replace("{", "")
+        text = text.replace("}", "")
+        text = text.replace("]", "")
+        text = text.replace("/", "")
+        text = text.replace("}]", "")
+        Log.d("category", text)
+
+        val result: List<String> = text.split(",").map { it.trim() }
+        var res = ""
+        var percentage = ""
+        var resultString = ""
+        for (i in result){
+            val item: List<String> = i.split("=").map { it.trim() }
+            if(item[0] == "confidence") {
+                percentage = ((item[1].substring(0, 5)).toFloat() * 100).toString() + "%"
+            }else{
+                res = item[1] + ": " + percentage
+                resultString += if(resultString!=""){"\n"}else{""} + res
+            }
+        }
+        return resultString
+    }
+
 
 }

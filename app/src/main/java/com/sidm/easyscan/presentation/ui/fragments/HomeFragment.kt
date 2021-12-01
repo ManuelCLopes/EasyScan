@@ -1,10 +1,6 @@
 package com.sidm.easyscan.presentation.ui.fragments
 
 import android.Manifest
-import android.R.attr.label
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -78,7 +74,7 @@ class HomeFragment : Fragment() {
         }
 
         view.findViewById<ImageView>(R.id.btn_copy).setOnClickListener {
-            copyToClipboard(this.processedText.toString())
+            utilFunctions.copyToClipboard(requireContext(), requireActivity(), this.processedText.toString())
         }
 
         view.findViewById<ImageView>(R.id.btn_edit).setOnClickListener {
@@ -140,17 +136,6 @@ class HomeFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-
-
-    private fun copyToClipboard(text: String) {
-        val clipboard: ClipboardManager? =
-            activity?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager?
-        val clip = ClipData.newPlainText(label.toString(), text)
-        clipboard?.setPrimaryClip(clip)
-
-        Toast.makeText(requireContext(), "Text copied to clipboard", Toast.LENGTH_LONG).show()
-
-    }
 
     /**
      * Calling this method will open the default camera application.
