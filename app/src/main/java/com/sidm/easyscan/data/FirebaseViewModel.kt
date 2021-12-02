@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.MetadataChanges
 import com.sidm.easyscan.data.model.DocumentDTO
 import java.sql.Timestamp
 import java.util.*
@@ -17,12 +18,12 @@ class FirebaseViewModel: ViewModel() {
     private var lastDoc: MutableLiveData<DocumentDTO> = MutableLiveData()
     private var specificDoc: MutableLiveData<DocumentDTO> = MutableLiveData()
 
-
     fun getDocuments(): MutableLiveData<List<DocumentDTO>> {
 
         firebaseRepository.getDocuments()
             .orderBy("timestamp")
-            .addSnapshotListener { snapshot, e ->
+            .whereEqualTo("user", FirebaseAuth.getInstance().currentUser!!.uid)
+            .addSnapshotListener(MetadataChanges.INCLUDE) { snapshot, e ->
                 if (e != null || snapshot == null) {
                     Log.w(TAG, "Unable to retrieve data. Error=$e, snapshot=$snapshot")
                     return@addSnapshotListener
@@ -56,7 +57,8 @@ class FirebaseViewModel: ViewModel() {
     fun getLastDocument(): MutableLiveData<DocumentDTO> {
         firebaseRepository.getDocuments()
             .orderBy("timestamp").limitToLast(1)
-            .addSnapshotListener { snapshot, e ->
+            .whereEqualTo("user", FirebaseAuth.getInstance().currentUser!!.uid)
+            .addSnapshotListener(MetadataChanges.INCLUDE) { snapshot, e ->
                 if (e != null || snapshot == null) {
                     Log.w(TAG, "Unable to retrieve data. Error=$e, snapshot=$snapshot")
                     return@addSnapshotListener
@@ -85,7 +87,7 @@ class FirebaseViewModel: ViewModel() {
 
     fun getSpecificDocument(id: String): MutableLiveData<DocumentDTO> {
         firebaseRepository.getDocuments().document(id)
-            .addSnapshotListener { doc, e ->
+            .addSnapshotListener (MetadataChanges.INCLUDE){ doc, e ->
                 if (e != null || doc == null) {
                     Log.w(TAG, "Unable to retrieve data. Error=$e, snapshot=$doc")
                     return@addSnapshotListener
@@ -114,7 +116,7 @@ class FirebaseViewModel: ViewModel() {
         getLastDocument()
     }
 
-    fun createDocument(imageUri: Uri, processedText: String, blocks: String, lines: String, words: String, language: String) {
+    fun createDocument(imageUri: Uri, processedText: String,lines: String, words: String, language: String, isOnline: Boolean) {
         val tempDoc = DocumentDTO(
             "",
             FirebaseAuth.getInstance().currentUser!!.uid,
@@ -130,12 +132,10 @@ class FirebaseViewModel: ViewModel() {
         )
 
         val filename = UUID.randomUUID().toString()
-        docs.value = docs.value?.plus(tempDoc)
-        firebaseRepository.createDocument(filename, imageUri, tempDoc)
+        firebaseRepository.createDocument(filename, imageUri, tempDoc, isOnline)
     }
 
     fun updateDocument(tempDoc: DocumentDTO){
-
         firebaseRepository.updateDocument(tempDoc)
     }
 

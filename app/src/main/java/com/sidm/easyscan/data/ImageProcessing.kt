@@ -26,7 +26,7 @@ class ImageProcessing {
     private val utilFunctions: UtilFunctions = UtilFunctions()
 
 
-    fun getTextOnline(imageUri: Uri, imageBitmap: Bitmap, firebaseViewModel: FirebaseViewModel, view: View) {
+    fun getTextOnline(context: Context, imageUri: Uri, imageBitmap: Bitmap, firebaseViewModel: FirebaseViewModel, view: View) {
         // Convert bitmap to base64 encoded string
         val byteArrayOutputStream = ByteArrayOutputStream()
         imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
@@ -88,10 +88,10 @@ class ImageProcessing {
                                 firebaseViewModel.createDocument(
                                     imageUri,
                                     processedText!!,
-                                    "",
                                     nLines.toString(),
                                     nWords.toString(),
-                                    lang
+                                    lang,
+                                    utilFunctions.isOnline(context)
                                 )
                                 utilFunctions.toggleNewDoc(view)
                                 view.findViewById<TextView>(R.id.tv_new_processed_text).text =
@@ -135,10 +135,10 @@ class ImageProcessing {
                             firebaseViewModel.createDocument(
                                 imageUri,
                                 processedText!!,
-                                "",
                                 nLines.toString(),
                                 nWords.toString(),
-                                lang
+                                lang,
+                                utilFunctions.isOnline(context)
                             )
                             utilFunctions.toggleNewDoc(view)
                             view.findViewById<TextView>(R.id.tv_new_processed_text).text =

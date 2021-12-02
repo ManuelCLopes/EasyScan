@@ -47,12 +47,30 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <TextView
-                        android:id="@+id/tv_test"
-                        android:layout_height="wrap_content"
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
-                        android:textSize="14sp"
-                        android:layout_marginTop="8dp"/>
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/tv_test"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textSize="14sp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <ImageView
+                            android:id="@+id/ic_copy"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_copy"
+                            app:layout_constraintEnd_toEndOf="@+id/tv_test"
+                            app:layout_constraintTop_toTopOf="parent"
+                            android:contentDescription="Copy to Clipboard" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
                     <EditText
                         android:id="@+id/et_test"
@@ -137,6 +155,7 @@
                         android:layout_marginTop="8dp">
 
                         <androidx.cardview.widget.CardView
+                            android:id="@+id/card_sentiment"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             app:cardBackgroundColor="@color/ocean_green">
@@ -157,34 +176,51 @@
                                         android:layout_width="match_parent"
                                         android:text="Sentiment"
                                         android:textStyle="bold"/>
-                                    <TextView
-                                        android:id="@+id/tv_sentiment"
+
+                                    <androidx.constraintlayout.widget.ConstraintLayout
+                                        android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
-                                        android:layout_width="match_parent"/>
+                                        android:layout_marginTop="8dp">
+
+                                        <ImageView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:src="@drawable/ic_dissatisfied"
+                                            app:layout_constraintBottom_toBottomOf="parent"
+                                            app:layout_constraintStart_toStartOf="parent"
+                                            app:layout_constraintTop_toTopOf="parent"
+                                            android:contentDescription="Sad Sentiment" />
+
+                                        <ImageView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:contentDescription="Happy Sentiment"
+                                            android:src="@drawable/ic_satisfied"
+                                            app:layout_constraintBottom_toBottomOf="parent"
+                                            app:layout_constraintEnd_toEndOf="parent"
+                                            app:layout_constraintTop_toTopOf="parent" />
+
+                                    </androidx.constraintlayout.widget.ConstraintLayout>
+                                    <!-- Continuous slider -->
+                                    <com.google.android.material.slider.Slider
+                                        android:id="@+id/slider"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:valueFrom="-1"
+                                        android:valueTo="1"
+                                        app:thumbColor="@color/black_coffee"
+                                        app:trackColorActive="@color/feldgrau"
+                                        app:trackColorInactive="@color/feldgrau"
+                                        app:thumbRadius="10dp"/>
                                 </LinearLayout>
 
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="vertical"
-                                    android:layout_marginTop="8dp">
-                                    <TextView
-                                        android:id="@+id/tv_sentiment_score_label"
-                                        android:layout_height="wrap_content"
-                                        android:layout_width="match_parent"
-                                        android:text="Sentiment Intensity"
-                                        android:textStyle="bold"/>
-                                    <TextView
-                                        android:id="@+id/tv_sentiment_score"
-                                        android:layout_height="wrap_content"
-                                        android:layout_width="match_parent"/>
-                                </LinearLayout>
 
                             </LinearLayout>
 
                         </androidx.cardview.widget.CardView>
 
                         <androidx.cardview.widget.CardView
+                            android:id="@+id/card_classification"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             app:cardBackgroundColor="@color/ocean_green"

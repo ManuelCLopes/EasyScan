@@ -85,14 +85,6 @@ class HomeFragment : Fragment() {
             ).show()
         }
 
-        view.findViewById<ImageView>(R.id.btn_delete).setOnClickListener {
-            firebaseViewModel.getLastDocument().observeOnce(this.requireActivity(), {
-                deleteDocument(it.id)
-            })
-            spinner!!.visibility = View.GONE
-
-            utilFunctions.toggleNewDoc(view)
-        }
         view.findViewById<LinearLayout>(R.id.rv_basic_info).setOnClickListener {
             val intent = Intent(context, DetailsActivity::class.java)
             intent.putExtra("id", lastDocId)
@@ -154,7 +146,7 @@ class HomeFragment : Fragment() {
         if (!utilFunctions.isOnline(context)) {
             imageProcessing.getTextOffline(context, imageUri, firebaseViewModel, requireView())
         } else {
-            imageProcessing.getTextOnline(imageUri, imageBitmap!!, firebaseViewModel, requireView())
+            imageProcessing.getTextOnline(context, imageUri, imageBitmap!!, firebaseViewModel, requireView())
         }
     }
 
@@ -247,16 +239,6 @@ class HomeFragment : Fragment() {
         }
 
         return true
-    }
-
-    private fun deleteDocument(id: String) {
-        firebaseViewModel.deleteDocument(id)
-        Toast.makeText(
-            requireContext(),
-            "Document deleted",
-            Toast.LENGTH_SHORT
-        ).show()
-        loadLastDocument()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

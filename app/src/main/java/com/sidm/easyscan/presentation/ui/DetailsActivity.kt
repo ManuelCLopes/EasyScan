@@ -13,22 +13,29 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.core.content.res.ResourcesCompat
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.slider.Slider
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.sidm.easyscan.R
 import com.sidm.easyscan.data.FirebaseViewModel
+import com.sidm.easyscan.util.UtilFunctions
+import kotlin.math.roundToInt
 
 
 class DetailsActivity : AppCompatActivity() {
 
     private lateinit var id: String
     private val firebaseViewModel: FirebaseViewModel = FirebaseViewModel()
-
+    private val utilFunctions: UtilFunctions = UtilFunctions()
     private var editMode: Boolean = false
 
 
@@ -37,24 +44,37 @@ class DetailsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_details)
         val tv = findViewById<TextView>(R.id.tv_test)
         val et = findViewById<EditText>(R.id.et_test)
+        val copyIcon = findViewById<ImageView>(R.id.ic_copy)
         id = intent.extras?.get("id").toString()
-        firebaseViewModel.getSpecificDocument(id).observe(this, {documentDTO ->
+
+        firebaseViewModel.getSpecificDocument(id).observeOnce(this, {documentDTO ->
             tv.text = documentDTO.processed_text
 
             findViewById<TextView>(R.id.tv_lines)?.text = documentDTO.lines
             findViewById<TextView>(R.id.tv_words)?.text = documentDTO.words
             findViewById<TextView>(R.id.tv_lang)?.text = documentDTO.language
 
-            findViewById<TextView>(R.id.tv_sentiment)?.text = documentDTO.sentiment
-            findViewById<TextView>(R.id.tv_sentiment_score)?.text = documentDTO.sentimentMagnitude
-            findViewById<TextView>(R.id.tv_classification)?.text =
-                separateClassificationCategories(documentDTO.classification)
+
+            if(documentDTO.classification == "null"){
+                findViewById<CardView>(R.id.card_classification).visibility = View.GONE
+            }else{
+                findViewById<TextView>(R.id.tv_classification)?.text =
+                    separateClassificationCategories(documentDTO.classification)
+            }
+
+            val slider =findViewById<Slider>(R.id.slider)
+            slider.isEnabled = false
+            if(documentDTO.sentiment == "null"){
+                findViewById<CardView>(R.id.card_sentiment).visibility = View.GONE
+            } else{
+                slider.value =documentDTO.sentiment.toFloat()
+                slider.thumbRadius = (10 + 11 * documentDTO.sentimentMagnitude.toFloat()).roundToInt()
+            }
 
             val imageView = findViewById<ImageView>(R.id.iv_photo_details)
 
-            Glide.with(this)
+            Glide.with(baseContext)
                 .load(documentDTO.image_url)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .fitCenter()
                 .into(imageView)
 
@@ -73,7 +93,10 @@ class DetailsActivity : AppCompatActivity() {
                 tv.visibility = View.VISIBLE
                 fabClose.visibility = View.GONE
                 et.visibility = View.GONE
-
+                copyIcon.visibility = View.VISIBLE
+                val imm: InputMethodManager =
+                    getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(findViewById<View>(android.R.id.content).windowToken, 0)
                 editMode = !editMode
             }
 
@@ -85,6 +108,7 @@ class DetailsActivity : AppCompatActivity() {
                     tv.visibility = View.VISIBLE
                     fabClose.visibility = View.GONE
                     et.visibility = View.GONE
+                    copyIcon.visibility = View.VISIBLE
                     Toast.makeText(applicationContext, "Content saved successfully!", Toast.LENGTH_LONG).show()
                 }else{
                     fabEdit.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_check, null))
@@ -92,6 +116,7 @@ class DetailsActivity : AppCompatActivity() {
                     tv.visibility = View.GONE
                     fabClose.visibility = View.VISIBLE
                     et.visibility = View.VISIBLE
+                    copyIcon.visibility = View.GONE
                     et.requestFocus()
                     val imm: InputMethodManager =
                         getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -116,6 +141,10 @@ class DetailsActivity : AppCompatActivity() {
                 )
             }
 
+            copyIcon.setOnClickListener {
+                utilFunctions.copyToClipboard(this.applicationContext, this, tv.text as String)
+            }
+
         })
     }
 
@@ -136,10 +165,10 @@ class DetailsActivity : AppCompatActivity() {
 
     private fun showAppDialog() {
         val builder = AlertDialog.Builder(this)
-        builder.setTitle(com.sidm.easyscan.R.string.delete_dialog_title)
-        builder.setMessage(com.sidm.easyscan.R.string.delete_dialog_message)
+        builder.setTitle(R.string.delete_dialog_title)
+        builder.setMessage(R.string.delete_dialog_message)
         builder.apply {
-            setPositiveButton(com.sidm.easyscan.R.string.delete_dialog_action_ok) { _, _ ->
+            setPositiveButton(R.string.delete_dialog_action_ok) { _, _ ->
                 deleteDocument(id)
                 Toast.makeText(
                     applicationContext,
@@ -147,7 +176,7 @@ class DetailsActivity : AppCompatActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
-            setNegativeButton(com.sidm.easyscan.R.string.delete_dialog_action_cancel) { _, _ ->
+            setNegativeButton(R.string.delete_dialog_action_cancel) { _, _ ->
             }
         }
         builder.create().show()
@@ -162,7 +191,6 @@ class DetailsActivity : AppCompatActivity() {
             ref?.delete()
         }
         docs.delete().addOnSuccessListener {
-            Log.w("TAG", "DELETE SUCCESSFUL $id")
             finish()
         }
     }
@@ -217,5 +245,12 @@ class DetailsActivity : AppCompatActivity() {
         return resultString
     }
 
-
+    private fun <T> LiveData<T>.observeOnce(lifecycleOwner: LifecycleOwner, observer: Observer<T>) {
+        observe(lifecycleOwner, object : Observer<T> {
+            override fun onChanged(t: T?) {
+                observer.onChanged(t)
+                removeObserver(this)
+            }
+        })
+    }
 }

@@ -2,11 +2,12 @@ package com.sidm.easyscan.data
 
 import android.net.Uri
 import android.util.Log
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.sidm.easyscan.data.model.DocumentDTO
+import com.sidm.easyscan.util.UtilFunctions
 import java.util.*
 
 
@@ -14,7 +15,8 @@ class FirebaseRepository{
 
     val TAG = "FIREBASE_REPOSITORY"
     val firestoreDB = FirebaseFirestore.getInstance()
-    val user = FirebaseAuth.getInstance().currentUser
+    private val utilFunctions: UtilFunctions = UtilFunctions()
+
 
     fun getDocuments(): CollectionReference {
         return firestoreDB.collection("DocumentCollection")
@@ -33,17 +35,21 @@ class FirebaseRepository{
         }
     }
 
-    fun createDocument(filename: String, imageUri: Uri, tempDoc: DocumentDTO) {
+    fun createDocument(filename: String, imageUri: Uri, tempDoc: DocumentDTO, isOnline: Boolean) {
         val ref = FirebaseStorage.getInstance().getReference("/images/$filename")
+        val docRef = firestoreDB.collection("DocumentCollection").document()
         ref.putFile(imageUri)
             .addOnSuccessListener {
                 ref.downloadUrl.addOnSuccessListener { uri ->
-                    saveImageInfoToFirebaseDatabase(uri.toString(), tempDoc)
+                    saveImageInfoToFirebaseDatabase(uri.toString(), tempDoc, docRef)
                 }
             }
+        if(!isOnline){
+            saveImageInfoToFirebaseDatabase(imageUri.toString(), tempDoc, docRef)
+        }
     }
 
-    private fun saveImageInfoToFirebaseDatabase(imageUrl: String, tempDoc: DocumentDTO){
+    private fun saveImageInfoToFirebaseDatabase(imageUrl: String, tempDoc: DocumentDTO, documentReference: DocumentReference){
 
         val doc = hashMapOf(
             "user" to tempDoc.user,
@@ -55,8 +61,8 @@ class FirebaseRepository{
             "language" to tempDoc.language
         )
 
-        firestoreDB.collection("DocumentCollection")
-            .add(doc)
+        documentReference
+            .set(doc)
             .addOnSuccessListener {
                 return@addOnSuccessListener
             }
