@@ -291,6 +291,7 @@
             android:layout_margin="32dp"
             android:contentDescription="@string/ic_edit"
             android:src="@drawable/ic_edit"
+            android:backgroundTint="@color/colorSecondaryMain"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"

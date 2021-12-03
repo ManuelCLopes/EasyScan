@@ -46,6 +46,9 @@ class DetailsActivity : AppCompatActivity() {
         val copyIcon = findViewById<ImageView>(R.id.ic_copy)
         id = intent.extras?.get("id").toString()
         firebaseViewModel.getSpecificDocument(id).observeOnce(this, {documentDTO ->
+            if(documentDTO.user == "null"){
+                finish()
+            }
             tv.text = documentDTO.processed_text
 
             findViewById<TextView>(R.id.tv_lines)?.text = documentDTO.lines
@@ -56,6 +59,7 @@ class DetailsActivity : AppCompatActivity() {
             if(documentDTO.classification == "null" || documentDTO.classification == "[]"){
                 findViewById<CardView>(R.id.card_classification).visibility = View.GONE
             }else{
+                findViewById<CardView>(R.id.card_classification).visibility = View.VISIBLE
                 findViewById<TextView>(R.id.tv_classification)?.text =
                     separateClassificationCategories(documentDTO.classification)
             }
@@ -65,6 +69,7 @@ class DetailsActivity : AppCompatActivity() {
             if(documentDTO.sentiment == "null"){
                 findViewById<CardView>(R.id.card_sentiment).visibility = View.GONE
             } else{
+                findViewById<CardView>(R.id.card_sentiment).visibility = View.VISIBLE
                 slider.value =documentDTO.sentiment.toFloat()
                 slider.thumbRadius = (10 + 7 * documentDTO.sentimentMagnitude.toFloat()).roundToInt()
             }
@@ -108,6 +113,9 @@ class DetailsActivity : AppCompatActivity() {
                     fabClose.visibility = View.GONE
                     et.visibility = View.GONE
                     copyIcon.visibility = View.VISIBLE
+                    val imm: InputMethodManager =
+                        getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(findViewById<View>(android.R.id.content).windowToken, 0)
                     Toast.makeText(applicationContext, "Content saved successfully!", Toast.LENGTH_LONG).show()
                 }else{
                     fabEdit.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_check, null))

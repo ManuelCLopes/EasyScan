@@ -34,6 +34,12 @@ class HistoryFragment : Fragment(){
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        firebaseViewModel.getDocuments()
+
+    }
+
     private fun setup() {
         val linearLayoutManager = LinearLayoutManager(context)
 
