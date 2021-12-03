@@ -4,7 +4,9 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.MetadataChanges
 import com.sidm.easyscan.data.model.DocumentDTO
 import java.sql.Timestamp
@@ -14,15 +16,15 @@ class FirebaseViewModel: ViewModel() {
 
     private val TAG = "FIREBASE_VIEW_MODEL"
     private val firebaseRepository = FirebaseRepository()
-    private var docs :MutableLiveData<List<DocumentDTO>> = MutableLiveData(listOf())
+    var docs :MutableLiveData<List<DocumentDTO>> = MutableLiveData(listOf())
     private var lastDoc: MutableLiveData<DocumentDTO> = MutableLiveData()
     private var specificDoc: MutableLiveData<DocumentDTO> = MutableLiveData()
 
-    fun getDocuments(): MutableLiveData<List<DocumentDTO>> {
+    fun getDocuments():MutableLiveData<List<DocumentDTO>> {
 
-        firebaseRepository.getDocuments()
+         firebaseRepository.getDocuments()
             .orderBy("timestamp")
-            .whereEqualTo("user", FirebaseAuth.getInstance().currentUser!!.uid)
+             .whereEqualTo("user", FirebaseAuth.getInstance().currentUser!!.uid)
             .addSnapshotListener(MetadataChanges.INCLUDE) { snapshot, e ->
                 if (e != null || snapshot == null) {
                     Log.w(TAG, "Unable to retrieve data. Error=$e, snapshot=$snapshot")
@@ -30,6 +32,7 @@ class FirebaseViewModel: ViewModel() {
                 }
                 val result = mutableListOf<DocumentDTO>()
 
+                Log.d("teste delete", snapshot.documents.toString())
                 for (document in snapshot.documents) {
                     val doc = DocumentDTO(
                         document.id,
@@ -50,7 +53,6 @@ class FirebaseViewModel: ViewModel() {
                 }
                 docs.postValue(result)
             }
-        Log.d("docs", docs.toString())
         return docs
     }
 
@@ -111,11 +113,6 @@ class FirebaseViewModel: ViewModel() {
         return specificDoc
     }
 
-    fun deleteDocument(id: String) {
-        firebaseRepository.deleteDocument(id)
-        getLastDocument()
-    }
-
     fun createDocument(imageUri: Uri, processedText: String,lines: String, words: String, language: String, isOnline: Boolean) {
         val tempDoc = DocumentDTO(
             "",
@@ -137,6 +134,18 @@ class FirebaseViewModel: ViewModel() {
 
     fun updateDocument(tempDoc: DocumentDTO){
         firebaseRepository.updateDocument(tempDoc)
+    }
+
+    fun getSpecificDocumentReference(id:String): DocumentReference{
+        return firebaseRepository.getDocuments().document(id)
+    }
+
+    fun deleteImageFromStorage(imageURL: String){
+        firebaseRepository.deleteImageFromStorage(imageURL)
+    }
+
+    fun deleteDocument(id: String): Task<Void> {
+        return firebaseRepository.deleteDocument(id)
     }
 
 }

@@ -48,8 +48,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         if (currentFragment == 0)
             menuInflater.inflate(R.menu.main_appbar, menu)
-        else
-            menuInflater.inflate(R.menu.repository_appbar, menu)
 
         return true
     }

@@ -14,7 +14,10 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -77,18 +80,12 @@ class HomeFragment : Fragment() {
             utilFunctions.copyToClipboard(requireContext(), requireActivity(), this.processedText.toString())
         }
 
-        view.findViewById<ImageView>(R.id.btn_edit).setOnClickListener {
-            Toast.makeText(
-                requireContext(),
-                "TODO: Transform tv into TextInput",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-
         view.findViewById<LinearLayout>(R.id.rv_basic_info).setOnClickListener {
-            val intent = Intent(context, DetailsActivity::class.java)
-            intent.putExtra("id", lastDocId)
-            ContextCompat.startActivity(requireContext(), intent, null)
+            if (lastDocId != null) {
+                val intent = Intent(context, DetailsActivity::class.java)
+                intent.putExtra("id", lastDocId)
+                ContextCompat.startActivity(requireContext(), intent, null)
+            }
         }
     }
 
@@ -133,6 +130,9 @@ class HomeFragment : Fragment() {
      * Calling this method will open the default camera application.
      */
     private fun openNativeCamera() {
+        if (!checkCameraPermissionAndRequest()) {
+            return
+        }
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
     }
@@ -156,7 +156,7 @@ class HomeFragment : Fragment() {
      */
     private fun selectImageFromGallery() {
 
-        if (!checkPermissionAndRequest()) {
+        if (!checkGalleryPermissionAndRequest()) {
             return
         }
         val intent = Intent(Intent.ACTION_PICK)
@@ -215,12 +215,17 @@ class HomeFragment : Fragment() {
                 selectImageFromGallery()
             }
         } else {
+            if (permissions[0] == Manifest.permission.CAMERA &&
+                grantResults[0] == PackageManager.PERMISSION_GRANTED
+            ) {
+                openNativeCamera()
+            }
 
             super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
 
-    private fun checkPermissionAndRequest(): Boolean {
+    private fun checkGalleryPermissionAndRequest(): Boolean {
 
         if (ContextCompat
                 .checkSelfPermission(
@@ -234,10 +239,26 @@ class HomeFragment : Fragment() {
                 arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
                 REQUEST_READ_STORAGE
             )
-
             return false
         }
+        return true
+    }
 
+    private fun checkCameraPermissionAndRequest(): Boolean {
+
+        if (ContextCompat
+                .checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.CAMERA
+                )
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(
+                arrayOf(Manifest.permission.CAMERA),
+                REQUEST_IMAGE_CAPTURE
+            )
+            return false
+        }
         return true
     }
 

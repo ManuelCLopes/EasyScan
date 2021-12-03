@@ -22,12 +22,11 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.slider.Slider
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
 import com.sidm.easyscan.R
 import com.sidm.easyscan.data.FirebaseViewModel
 import com.sidm.easyscan.util.UtilFunctions
+import java.math.BigDecimal
+import java.math.RoundingMode
 import kotlin.math.roundToInt
 
 
@@ -46,7 +45,6 @@ class DetailsActivity : AppCompatActivity() {
         val et = findViewById<EditText>(R.id.et_test)
         val copyIcon = findViewById<ImageView>(R.id.ic_copy)
         id = intent.extras?.get("id").toString()
-
         firebaseViewModel.getSpecificDocument(id).observeOnce(this, {documentDTO ->
             tv.text = documentDTO.processed_text
 
@@ -55,7 +53,7 @@ class DetailsActivity : AppCompatActivity() {
             findViewById<TextView>(R.id.tv_lang)?.text = documentDTO.language
 
 
-            if(documentDTO.classification == "null"){
+            if(documentDTO.classification == "null" || documentDTO.classification == "[]"){
                 findViewById<CardView>(R.id.card_classification).visibility = View.GONE
             }else{
                 findViewById<TextView>(R.id.tv_classification)?.text =
@@ -68,7 +66,7 @@ class DetailsActivity : AppCompatActivity() {
                 findViewById<CardView>(R.id.card_sentiment).visibility = View.GONE
             } else{
                 slider.value =documentDTO.sentiment.toFloat()
-                slider.thumbRadius = (10 + 11 * documentDTO.sentimentMagnitude.toFloat()).roundToInt()
+                slider.thumbRadius = (10 + 7 * documentDTO.sentimentMagnitude.toFloat()).roundToInt()
             }
 
             val imageView = findViewById<ImageView>(R.id.iv_photo_details)
@@ -183,14 +181,16 @@ class DetailsActivity : AppCompatActivity() {
     }
 
     private fun deleteDocument(id: String) {
-        val docs = Firebase.firestore.collection("DocumentCollection").document(id)
-        docs.addSnapshotListener{snapshot, e ->
-            val ref = snapshot?.data?.let { FirebaseStorage.getInstance().getReferenceFromUrl(
-                it["image_url"]
-                    .toString()) }
-            ref?.delete()
+        val doc = firebaseViewModel.getSpecificDocumentReference(id)
+        doc.addSnapshotListener { snapshot, _ ->
+            snapshot?.data?.let {
+                firebaseViewModel.deleteImageFromStorage(
+                    it["image_url"]
+                        .toString()
+                )
+            }
         }
-        docs.delete().addOnSuccessListener {
+        firebaseViewModel.deleteDocument(id).addOnCompleteListener {
             finish()
         }
     }
@@ -225,8 +225,8 @@ class DetailsActivity : AppCompatActivity() {
         text = text.replace("{", "")
         text = text.replace("}", "")
         text = text.replace("]", "")
-        text = text.replace("/", "")
         text = text.replace("}]", "")
+        text = text.replace("/", "")
         Log.d("category", text)
 
         val result: List<String> = text.split(",").map { it.trim() }
@@ -236,7 +236,7 @@ class DetailsActivity : AppCompatActivity() {
         for (i in result){
             val item: List<String> = i.split("=").map { it.trim() }
             if(item[0] == "confidence") {
-                percentage = ((item[1].substring(0, 5)).toFloat() * 100).toString() + "%"
+                percentage = (BigDecimal(item[1].toDouble()).setScale(4, RoundingMode.HALF_EVEN).toFloat() * 100).toString() + "%"
             }else{
                 res = item[1] + ": " + percentage
                 resultString += if(resultString!=""){"\n"}else{""} + res
