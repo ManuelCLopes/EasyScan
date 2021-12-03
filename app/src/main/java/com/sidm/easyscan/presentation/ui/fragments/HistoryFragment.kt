@@ -15,7 +15,7 @@ import com.sidm.easyscan.data.FirebaseViewModel
 import com.sidm.easyscan.databinding.FragmentRepositoryBinding
 import com.sidm.easyscan.presentation.adapters.DocumentsAdapter
 
-class RepositoryFragment : Fragment(){
+class HistoryFragment : Fragment(){
 
     private lateinit var binding: FragmentRepositoryBinding
     private lateinit var firebaseViewModel: FirebaseViewModel
@@ -28,15 +28,10 @@ class RepositoryFragment : Fragment(){
         setHasOptionsMenu(true)
         firebaseViewModel = ViewModelProvider(this)[FirebaseViewModel::class.java]
         binding = FragmentRepositoryBinding.inflate(layoutInflater)
-        return binding.root
-    }
-
-
-    override fun onResume() {
-        super.onResume()
-
         setup()
+        firebaseViewModel.getDocuments()
         loadDocuments()
+        return binding.root
     }
 
     private fun setup() {
@@ -51,7 +46,7 @@ class RepositoryFragment : Fragment(){
 
     private fun loadDocuments() {
         val adapter = binding.rvDocuments.adapter as DocumentsAdapter
-        firebaseViewModel.getDocuments().observe(requireActivity(), {
+        firebaseViewModel.docs.observe(requireActivity(), {
             adapter.submitList(it)
         })
         adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
@@ -70,4 +65,5 @@ class RepositoryFragment : Fragment(){
             true
         } else super.onOptionsItemSelected(item)
     }
+
 }

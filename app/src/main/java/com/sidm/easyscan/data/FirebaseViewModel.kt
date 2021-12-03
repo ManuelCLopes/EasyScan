@@ -14,7 +14,7 @@ import java.util.*
 
 class FirebaseViewModel: ViewModel() {
 
-    private val TAG = "FIREBASE_VIEW_MODEL"
+    private val tag = "FIREBASE_VIEW_MODEL"
     private val firebaseRepository = FirebaseRepository()
     var docs :MutableLiveData<List<DocumentDTO>> = MutableLiveData(listOf())
     private var lastDoc: MutableLiveData<DocumentDTO> = MutableLiveData()
@@ -27,12 +27,11 @@ class FirebaseViewModel: ViewModel() {
              .whereEqualTo("user", FirebaseAuth.getInstance().currentUser!!.uid)
             .addSnapshotListener(MetadataChanges.INCLUDE) { snapshot, e ->
                 if (e != null || snapshot == null) {
-                    Log.w(TAG, "Unable to retrieve data. Error=$e, snapshot=$snapshot")
+                    Log.w(tag, "Unable to retrieve data. Error=$e, snapshot=$snapshot")
                     return@addSnapshotListener
                 }
                 val result = mutableListOf<DocumentDTO>()
 
-                Log.d("teste delete", snapshot.documents.toString())
                 for (document in snapshot.documents) {
                     val doc = DocumentDTO(
                         document.id,
@@ -62,7 +61,7 @@ class FirebaseViewModel: ViewModel() {
             .whereEqualTo("user", FirebaseAuth.getInstance().currentUser!!.uid)
             .addSnapshotListener(MetadataChanges.INCLUDE) { snapshot, e ->
                 if (e != null || snapshot == null) {
-                    Log.w(TAG, "Unable to retrieve data. Error=$e, snapshot=$snapshot")
+                    Log.w(tag, "Unable to retrieve data. Error=$e, snapshot=$snapshot")
                     return@addSnapshotListener
                 }
                 if (snapshot.documents.size != 0) {
@@ -91,7 +90,7 @@ class FirebaseViewModel: ViewModel() {
         firebaseRepository.getDocuments().document(id)
             .addSnapshotListener (MetadataChanges.INCLUDE){ doc, e ->
                 if (e != null || doc == null) {
-                    Log.w(TAG, "Unable to retrieve data. Error=$e, snapshot=$doc")
+                    Log.w(tag, "Unable to retrieve data. Error=$e, snapshot=$doc")
                     return@addSnapshotListener
                 }
                 val result = DocumentDTO(

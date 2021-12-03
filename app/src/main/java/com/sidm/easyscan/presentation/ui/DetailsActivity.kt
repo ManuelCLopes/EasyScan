@@ -103,6 +103,7 @@ class DetailsActivity : AppCompatActivity() {
                     documentDTO.processed_text = et.text.toString()
                     firebaseViewModel.updateDocument(documentDTO)
                     fabEdit.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_edit, null))
+                    tv.text = et.text
                     tv.visibility = View.VISIBLE
                     fabClose.visibility = View.GONE
                     et.visibility = View.GONE
@@ -230,7 +231,7 @@ class DetailsActivity : AppCompatActivity() {
         Log.d("category", text)
 
         val result: List<String> = text.split(",").map { it.trim() }
-        var res = ""
+        var res: String
         var percentage = ""
         var resultString = ""
         for (i in result){

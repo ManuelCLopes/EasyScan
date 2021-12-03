@@ -15,7 +15,7 @@
         android:layout_marginBottom="4dp"
         android:layout_marginTop="4dp"
         android:padding="8dp"
-        android:backgroundTint="@color/ocean_aquamarine"
+        android:backgroundTint="@color/colorSecondaryLight"
         android:clickable="true"
         android:focusable="true">
 
@@ -29,7 +29,7 @@
                 android:id="@+id/imageView"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
-                android:contentDescription="@string/description_image"
+                android:contentDescription="@string/list_thumbnail"
                 android:padding="8dp"/>
 
             <LinearLayout
@@ -42,9 +42,8 @@
                     android:id="@+id/tv_timestamp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/darker_gray"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
+                    android:textColor="@android:color/primary_text_light"
+                    android:textSize="12sp"/>
 
                 <TextView
                     android:id="@+id/tv_user"
@@ -69,6 +68,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:textSize="15sp"
+                    android:textColor="@android:color/primary_text_light"
                     android:layout_marginEnd ="8dp"
                     android:layout_marginBottom ="8dp"/>
             </LinearLayout>

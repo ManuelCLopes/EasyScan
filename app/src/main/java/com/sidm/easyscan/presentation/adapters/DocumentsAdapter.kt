@@ -71,7 +71,6 @@ class DocumentsAdapter : ListAdapter<DocumentDTO, DocumentsAdapter.ItemsViewHold
 
         init {
             itemView.findViewById<CardView>(R.id.ll_message_container) .setOnClickListener {
-
                 val intent = Intent(itemView.context, DetailsActivity::class.java)
                 intent.putExtra("id", bindingIncoming?.tvId?.text)
                 startActivity(itemView.context, intent, null)

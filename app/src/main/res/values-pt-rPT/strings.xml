@@ -2,82 +2,35 @@
 <resources>
     <string name="app_name">EasyScan</string>
 
-    <!-- Login -->
-    <string name="action_login">Authenticar</string>
-    <string name="action_save_credentials">Guardar as credenciais</string>
-
-    <string name="error_credentials_empty_username">Tens de introduzir um nome de utilizador válido</string>
-    <string name="error_credentials_empty_password">Tens de introduzir uma palavra-chave válida</string>
-    <string name="error_credentials_mismatch">Nome de utilizador e/ou palavra-chave inválidas</string>
-
-    <string name="hint_username">O teu nome de utilizador</string>
-    <string name="hint_password">A tua palavra-chave</string>
-
-
-    <!-- About -->
-    <string name="about">Sobre</string>
-    <string name="about_copyright">Copyright © 2020\nAndroid Training Program, Portugal</string>
-    <string name="about_website">Website</string>
-    <string name="about_youtube">Canal do YouTube</string>
-    <string name="about_email">E-mail</string>
-
-    <string name="about_share">Partilha</string>
-    <string name="about_twitter">Twitter</string>
-
-    <string name="about_authors">Autores</string>
-    <string name="about_almo">\@davilagrau</string>
-    <string name="about_cafonsomota">\@cafonsomota</string>
-    <string name="about_tallnato">\@tallnato</string>
-
-    <string name="about_libraries">Bibliotecas</string>
-    <string name="about_android">Android</string>
-    <string name="about_retrofit"><a href="https://github.com/square/retrofit">Retrofit</a></string>
-    <string name="about_glide"><a href="https://github.com/bumptech/glide">glide</a></string>
-    <string name="about_icons8">icons8</string>
-
-    <!-- Buttons -->
-    <string name="open_camera">Abrir a câmara</string>
-    <string name="open_details">Abrir os detalhes</string>
-    <string name="show_dialog">Mostrar um dialog</string>
-    <string name="show_snackbar">Mostra uma snackbar</string>
-    <string name="start_timer">Início</string>
-
-    <!-- Dialog -->
-    <string name="dialog_title">Bobi</string>
-    <string name="dialog_message">Mas que cães bonitos!</string>
-    <string name="dialog_action_ok">OK</string>
-    <string name="dialog_action_ok_selected">Escolheste a opção ok!</string>
-    <string name="dialog_action_cancel">Cancelar</string>
-
-    <!-- Snackbar -->
-    <string name="snackbar_message">Mas que cães bonitos!</string>
-    <string name="snackbar_action_thanks">Obrigado</string>
-    <string name="snackbar_action_thanks_selected">Escolheste a opção obrigado!</string>
-
-    <string name="time_remaining">Faltam %d segundos</string>
-    <string name="time_done">Feito!</string>
-
-    <!-- Content Description -->
-    <string name="description_logo">Logo da aplicação</string>
-    <string name="description_image">Imagem de um cão</string>
-
-    <!-- Main -->
     <string name="main_menu_home">Início</string>
-    <string name="main_menu_breeds">Raças</string>
-    <string name="main_menu_favourites">Favoritos</string>
-    <string name="main_menu_chat">Chat</string>
     <string name="main_menu_about">Histórico</string>
-    <string name="uploadButton">Upload</string>
-    <string name="messages_input_hint">teste</string>
-    <string name="floatingButtonCamera">Take a photo</string>
-    <string name="copy_to_clipboard">Copy to Clipboard</string>
-    <string name="edit_text">Edit text</string>
-    <string name="content_description_details_photo">Image</string>
-    <string name="delete_dialog_title">Delete document</string>
-    <string name="delete_dialog_message">Do you want to delete this document?</string>
-    <string name="delete_dialog_action_ok">Delete</string>
-    <string name="delete_dialog_action_cancel">Cancel</string>
-    <string name="logout">Logout</string>
-    <string name="sort_items">Sort items</string>
-    <string name="delete_item">Delete item</string>
+    <string name="uploadButton">Carregar imagem</string>
+    <string name="floatingButtonCamera">Capturar imagem</string>
+    <string name="copy_to_clipboard">Copiar</string>
+    <string name="edit_text">Editar</string>
+    <string name="content_description_details_photo">Imagem</string>
+    <string name="delete_dialog_title">Apagar documento</string>
+    <string name="delete_dialog_message">Tens a certeza que pretendes apagar o documento?</string>
+    <string name="delete_dialog_action_ok">Apagar</string>
+    <string name="delete_dialog_action_cancel">Cancelar</string>
+    <string name="logout">Sair</string>
+    <string name="sort_items">Ordenar</string>
+    <string name="delete_item">Apagar</string>
+    <string name="last_scan_label">Última leitura</string>
+    <string name="last_scan_img">Imagem processada</string>
+    <string name="last_scan_date">Quando quiseres</string>
+    <string name="last_scan_text">Vamos processar algum texto!</string>
+    <string name="new_scan_label">Nova leitura</string>
+    <string name="details_imageFullScreen">Imagem em fullscreen</string>
+    <string name="details_lines">linhas</string>
+    <string name="details_words">palavras</string>
+    <string name="details_language">linguagem</string>
+    <string name="details_sentiment">Sentimento</string>
+    <string name="ic_sad_sentiment">Muito mau</string>
+    <string name="ic_happy_sentiment">Muito bom</string>
+    <string name="details_classification_confidence">Classificação | Confiança</string>
+    <string name="ic_cancel">Cancelar</string>
+    <string name="ic_edit">Editar</string>
+    <string name="list_thumbnail">Imagem processada</string>
+    <string name="description_logo">logo</string>
 </resources>

@@ -6,13 +6,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.sidm.easyscan.R
+import com.sidm.easyscan.presentation.ui.fragments.HistoryFragment
 import com.sidm.easyscan.presentation.ui.fragments.HomeFragment
-import com.sidm.easyscan.presentation.ui.fragments.RepositoryFragment
 
 class MainActivity : AppCompatActivity() {
 
     private val homeFragment by lazy { HomeFragment() }
-    private val repositoryFragment by lazy { RepositoryFragment() }
+    private val repositoryFragment by lazy { HistoryFragment() }
     // 0 - HomeFragment    1 - RepositoryFragment
     private var currentFragment: Int = 0
 

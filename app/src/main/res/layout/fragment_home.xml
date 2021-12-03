@@ -40,7 +40,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
-                android:text="Last scan done"
+                android:text="@string/last_scan_label"
                 android:textColor="@android:color/darker_gray"
                 android:textSize="18sp"
                 app:layout_constraintBottom_toTopOf="@+id/ll_message_container"
@@ -65,7 +65,7 @@
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:backgroundTint="@color/ocean_aquamarine">
+                    android:backgroundTint="@color/colorSecondaryLight">
 
                     <LinearLayout
                         android:id="@+id/rv_basic_info"
@@ -77,9 +77,9 @@
                             android:id="@+id/iv_last_image"
                             android:layout_width="80dp"
                             android:layout_height="80dp"
-                            android:contentDescription="Image captured"
+                            android:contentDescription="@string/last_scan_img"
                             android:padding="8dp"
-                            android:src="@mipmap/ic_launcher" />
+                            android:src="@drawable/ic_dummy" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -91,10 +91,9 @@
                                 android:id="@+id/tv_last_timestamp"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Whenever you want"
-                                android:textColor="@android:color/darker_gray"
-                                android:textSize="12sp"
-                                android:textStyle="bold" />
+                                android:text="@string/last_scan_date"
+                                android:textColor="@android:color/primary_text_light"
+                                android:textSize="12sp" />
 
                             <TextView
                                 android:id="@+id/tv_last_processed_text"
@@ -102,7 +101,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginEnd="8dp"
                                 android:layout_marginBottom="8dp"
-                                android:text="Let's scan some text!"
+                                android:text="@string/last_scan_text"
                                 android:textColor="@android:color/primary_text_light"
                                 android:textSize="15sp" />
 
@@ -120,7 +119,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="16dp"
-                android:text="New scan"
+                android:text="@string/new_scan_label"
                 android:textColor="@android:color/darker_gray"
                 android:textSize="18sp"
                 android:visibility="gone"
@@ -148,15 +147,16 @@
                     android:id="@+id/ll_new_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    tools:ignore="UselessParent">
 
                     <ImageView
                         android:id="@+id/iv_new_image_doc"
                         android:layout_width="80dp"
                         android:layout_height="match_parent"
-                        android:contentDescription="@string/description_image"
+                        android:contentDescription="@string/list_thumbnail"
                         android:padding="8dp"
-                        android:src="@mipmap/ic_launcher" />
+                        android:src="@drawable/ic_dummy" />
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -170,7 +170,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text=" 1500s, when an unknown prin"
                             android:textColor="@android:color/white"
                             android:textSize="15sp"
                             app:layout_constraintStart_toStartOf="parent"
@@ -223,6 +222,7 @@
             android:layout_gravity="end|bottom"
             android:layout_margin="32dp"
             android:layout_marginBottom="32dp"
+            android:backgroundTint="@color/colorSecondaryMain"
             android:contentDescription="@string/floatingButtonCamera"
             android:src="@drawable/ic_camera"
             app:layout_constraintBottom_toBottomOf="parent"

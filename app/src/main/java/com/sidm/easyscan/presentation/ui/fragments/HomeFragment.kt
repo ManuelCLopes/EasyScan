@@ -130,9 +130,6 @@ class HomeFragment : Fragment() {
      * Calling this method will open the default camera application.
      */
     private fun openNativeCamera() {
-        if (!checkCameraPermissionAndRequest()) {
-            return
-        }
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
     }
@@ -156,7 +153,7 @@ class HomeFragment : Fragment() {
      */
     private fun selectImageFromGallery() {
 
-        if (!checkGalleryPermissionAndRequest()) {
+        if (!checkPermissionAndRequest()) {
             return
         }
         val intent = Intent(Intent.ACTION_PICK)
@@ -215,17 +212,12 @@ class HomeFragment : Fragment() {
                 selectImageFromGallery()
             }
         } else {
-            if (permissions[0] == Manifest.permission.CAMERA &&
-                grantResults[0] == PackageManager.PERMISSION_GRANTED
-            ) {
-                openNativeCamera()
-            }
 
             super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
 
-    private fun checkGalleryPermissionAndRequest(): Boolean {
+    private fun checkPermissionAndRequest(): Boolean {
 
         if (ContextCompat
                 .checkSelfPermission(
@@ -239,26 +231,10 @@ class HomeFragment : Fragment() {
                 arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
                 REQUEST_READ_STORAGE
             )
+
             return false
         }
-        return true
-    }
 
-    private fun checkCameraPermissionAndRequest(): Boolean {
-
-        if (ContextCompat
-                .checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.CAMERA
-                )
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissions(
-                arrayOf(Manifest.permission.CAMERA),
-                REQUEST_IMAGE_CAPTURE
-            )
-            return false
-        }
         return true
     }
 

@@ -5,13 +5,13 @@
     <color name="black">#FF000000</color>
     <color name="black75">#BF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="grey">#616161</color>
+    <color name="grey">#838383</color>
+
 
 
     <color name="medium_aquamarine">#56E39F</color>
     <color name="ocean_aquamarine">#74D2B4</color>
     <color name="ocean_green">#59C9A5</color>
-    <color name="feldgrau">#5B6C5D</color>
     <color name="black_coffee">#3B2C35</color>
     <color name="dark_purple">#2A1F2D</color>
 
