@@ -45,7 +45,7 @@ class ImageProcessing {
         features.add(feature)
         request.add("features", features)
 
-        var processedText: String? = ""
+        var processedText: String?
         var nLines = 0
         var nWords = 0
 
@@ -60,7 +60,7 @@ class ImageProcessing {
                     if (!task.result.asJsonArray[0].asJsonObject.has("fullTextAnnotation")) {
                         Toast.makeText(
                             view.context,
-                            "Couldn't read any text from the image. Please try again",
+                            context.getString(R.string.Toast_ImageProcessing),
                             Toast.LENGTH_SHORT
                         ).show()
                         utilFunctions.toggleProgressCircle(view)
@@ -78,11 +78,7 @@ class ImageProcessing {
                                 }
                             }
                         }
-
-                        val a = analyzeSentiment(processedText!!)
-                        Log.d("gcloud functions", a.toString())
-
-
+                        
                         languageIdentification.identifyLanguage(processedText.toString())
                             .addOnSuccessListener { lang ->
                                 firebaseViewModel.createDocument(
@@ -107,14 +103,14 @@ class ImageProcessing {
         val inputImage = InputImage.fromFilePath(context, imageUri)
         var nLines = 0
         var nWords = 0
-        var processedText: String? = ""
+        var processedText: String?
 
         recognizer.process(inputImage)
             .addOnSuccessListener { visionText ->
                 if (visionText.text == "") {
                     Toast.makeText(
                         view.context,
-                        "Couldn't read any text from the image. Please try again",
+                        context.getString(R.string.Toast_ImageProcessing),
                         Toast.LENGTH_SHORT
                     ).show()
                     utilFunctions.toggleProgressCircle(view)
@@ -151,22 +147,6 @@ class ImageProcessing {
             }
     }
 
-    private fun analyzeSentiment(originalText: String){
-        // Create json request to cloud vision
-        val request = JsonObject()
-        val text = JsonObject()
-        text.add("content", JsonPrimitive(originalText))
-        request.add("text", text)
-        analyzeText(request.toString())
-            .addOnCompleteListener { task ->
-                if (!task.isSuccessful) {
-                    Log.d("gcloud functions", "Failed reading")
-                } else {
-                    Log.d("gcloud functions", task.result.toString())
-                }
-            }
-    }
-
     private fun analyzeImage(requestJson: String): Task<JsonElement> {
         return functions
             .getHttpsCallable("analyzeImage")
@@ -177,13 +157,4 @@ class ImageProcessing {
             }
     }
 
-    private fun analyzeText(requestJson: String): Task<JsonElement> {
-        return functions
-            .getHttpsCallable("analyzeSentiment")
-            .call(requestJson)
-            .continueWith { task ->
-                val result = task.result.data
-                JsonParser.parseString(Gson().toJson(result))
-            }
-    }
 }

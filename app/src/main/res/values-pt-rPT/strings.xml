@@ -34,4 +34,5 @@
     <string name="list_thumbnail">Imagem processada</string>
     <string name="description_logo">logo</string>
     <string name="toast_clipboard">Texto copiado para área de transferência</string>
+    <string name="Toast_ImageProcessing">Não foi encontrado texto na imagem</string>
 </resources>
