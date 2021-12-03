@@ -152,6 +152,6 @@ class UtilFunctions {
         val clip = ClipData.newPlainText(android.R.attr.label.toString(), text)
         clipboard?.setPrimaryClip(clip)
 
-        Toast.makeText(context, "Text copied to clipboard", Toast.LENGTH_LONG).show()
+        Toast.makeText(context, context.getString(R.string.toast_clipboard), Toast.LENGTH_LONG).show()
     }
 }
