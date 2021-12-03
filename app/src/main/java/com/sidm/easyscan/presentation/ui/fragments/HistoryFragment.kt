@@ -29,6 +29,11 @@ class HistoryFragment : Fragment(){
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        firebaseViewModel.getDocuments()
+    }
+
     private fun setup() {
         val linearLayoutManager = LinearLayoutManager(context)
 
@@ -41,7 +46,8 @@ class HistoryFragment : Fragment(){
 
     private fun loadDocuments() {
         val adapter = binding.rvDocuments.adapter as DocumentsAdapter
-        firebaseViewModel.getDocuments().observe(requireActivity(), {
+        firebaseViewModel.getDocuments()
+        firebaseViewModel.docs.observe(requireActivity(), {
             adapter.submitList(it)
         })
         adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
