@@ -38,13 +38,15 @@
                     android:layout_height="300dp"
                     android:layout_weight="70"
                     android:contentDescription="@string/content_description_details_photo"
-                    android:scaleType="centerCrop"/>
+                    android:scaleType="centerCrop"
+                    tools:ignore="InefficientWeight" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="16dp"
+                    android:gravity="center">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -231,22 +233,16 @@
                                 android:layout_height="wrap_content"
                                 android:orientation="vertical"
                                 android:layout_margin="8dp">
-                                <LinearLayout
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="match_parent"
-                                    android:orientation="vertical">
-                                    <TextView
-                                        android:id="@+id/tv_classification_label"
-                                        android:layout_height="wrap_content"
-                                        android:layout_width="match_parent"
-                                        android:text="@string/details_classification_confidence"
-                                        android:textStyle="bold"/>
-                                    <TextView
-                                        android:id="@+id/tv_classification"
-                                        android:layout_height="wrap_content"
-                                        android:layout_width="match_parent"/>
-                                </LinearLayout>
-
+                                <TextView
+                                    android:id="@+id/tv_classification_label"
+                                    android:layout_height="wrap_content"
+                                    android:layout_width="match_parent"
+                                    android:text="@string/details_classification_confidence"
+                                    android:textStyle="bold"/>
+                                <TextView
+                                    android:id="@+id/tv_classification"
+                                    android:layout_height="wrap_content"
+                                    android:layout_width="match_parent"/>
                             </LinearLayout>
 
                         </androidx.cardview.widget.CardView>

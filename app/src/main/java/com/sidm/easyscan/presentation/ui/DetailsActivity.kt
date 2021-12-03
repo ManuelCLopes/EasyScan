@@ -45,7 +45,7 @@ class DetailsActivity : AppCompatActivity() {
         val et = findViewById<EditText>(R.id.et_test)
         val copyIcon = findViewById<ImageView>(R.id.ic_copy)
         id = intent.extras?.get("id").toString()
-        firebaseViewModel.getSpecificDocument(id).observeOnce(this, {documentDTO ->
+        firebaseViewModel.getSpecificDocument(id).observe(this, {documentDTO ->
             if(documentDTO.user == "null"){
                 finish()
             }

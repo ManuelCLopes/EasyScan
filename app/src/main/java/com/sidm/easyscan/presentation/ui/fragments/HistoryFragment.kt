@@ -2,15 +2,12 @@ package com.sidm.easyscan.presentation.ui.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.sidm.easyscan.R
 import com.sidm.easyscan.data.FirebaseViewModel
 import com.sidm.easyscan.databinding.FragmentRepositoryBinding
 import com.sidm.easyscan.presentation.adapters.DocumentsAdapter
@@ -25,19 +22,11 @@ class HistoryFragment : Fragment(){
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        setHasOptionsMenu(true)
         firebaseViewModel = ViewModelProvider(this)[FirebaseViewModel::class.java]
         binding = FragmentRepositoryBinding.inflate(layoutInflater)
         setup()
-        firebaseViewModel.getDocuments()
         loadDocuments()
         return binding.root
-    }
-
-    override fun onResume() {
-        super.onResume()
-        firebaseViewModel.getDocuments()
-
     }
 
     private fun setup() {
@@ -52,24 +41,10 @@ class HistoryFragment : Fragment(){
 
     private fun loadDocuments() {
         val adapter = binding.rvDocuments.adapter as DocumentsAdapter
-        firebaseViewModel.docs.observe(requireActivity(), {
+        firebaseViewModel.getDocuments().observe(requireActivity(), {
             adapter.submitList(it)
         })
         adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
         })
     }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
-        val id: Int = item.itemId
-        return if (id == R.id.btn_sort) {
-            Toast.makeText(
-                requireContext(),
-                "TODO: sort docs",
-                Toast.LENGTH_SHORT
-            ).show()
-            true
-        } else super.onOptionsItemSelected(item)
-    }
-
 }

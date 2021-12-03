@@ -30,6 +30,7 @@ class FirebaseViewModel: ViewModel() {
                     Log.w(tag, "Unable to retrieve data. Error=$e, snapshot=$snapshot")
                     return@addSnapshotListener
                 }
+
                 val result = mutableListOf<DocumentDTO>()
 
                 for (document in snapshot.documents) {
@@ -50,8 +51,14 @@ class FirebaseViewModel: ViewModel() {
                     result += doc
 
                 }
+                Log.d("dados", docs.value?.size.toString())
                 docs.postValue(result)
+                Log.d("dados", "NOVO:" + docs.value?.size.toString())
+
+
             }
+        Log.d("dados", "NOVO2:" + docs.value?.size.toString())
+
         return docs
     }
 
