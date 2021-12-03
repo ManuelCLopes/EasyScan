@@ -45,16 +45,15 @@ class DetailsActivity : AppCompatActivity() {
         val et = findViewById<EditText>(R.id.et_test)
         val copyIcon = findViewById<ImageView>(R.id.ic_copy)
         id = intent.extras?.get("id").toString()
+
         firebaseViewModel.getSpecificDocument(id).observe(this, {documentDTO ->
             if(documentDTO.user == "null"){
                 finish()
             }
             tv.text = documentDTO.processed_text
-
             findViewById<TextView>(R.id.tv_lines)?.text = documentDTO.lines
             findViewById<TextView>(R.id.tv_words)?.text = documentDTO.words
             findViewById<TextView>(R.id.tv_lang)?.text = documentDTO.language
-
 
             if(documentDTO.classification == "null" || documentDTO.classification == "[]"){
                 findViewById<CardView>(R.id.card_classification).visibility = View.GONE
@@ -75,7 +74,6 @@ class DetailsActivity : AppCompatActivity() {
             }
 
             val imageView = findViewById<ImageView>(R.id.iv_photo_details)
-
             Glide.with(baseContext)
                 .load(documentDTO.image_url)
                 .fitCenter()
@@ -83,7 +81,6 @@ class DetailsActivity : AppCompatActivity() {
 
             val fabEdit = findViewById<FloatingActionButton>(R.id.fab_edit)
             val fabClose = findViewById<FloatingActionButton>(R.id.fab_close)
-
             fabClose.setOnClickListener {
 
                 fabEdit.setImageDrawable(
@@ -102,7 +99,6 @@ class DetailsActivity : AppCompatActivity() {
                 imm.hideSoftInputFromWindow(findViewById<View>(android.R.id.content).windowToken, 0)
                 editMode = !editMode
             }
-
             fabEdit.setOnClickListener {
                 if(editMode){
                     documentDTO.processed_text = et.text.toString()
@@ -135,7 +131,6 @@ class DetailsActivity : AppCompatActivity() {
             findViewById<ImageView>(R.id.iv_photo_details).setOnClickListener {
                 zoomImage(documentDTO.image_url)
             }
-
             findViewById<ImageView>(R.id.expanded_image).setOnClickListener {
                 it.visibility = View.GONE
                 fabEdit.visibility = View.VISIBLE
@@ -151,7 +146,6 @@ class DetailsActivity : AppCompatActivity() {
             copyIcon.setOnClickListener {
                 utilFunctions.copyToClipboard(this.applicationContext, this, tv.text as String)
             }
-
         })
     }
 
