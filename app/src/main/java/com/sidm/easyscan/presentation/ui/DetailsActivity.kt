@@ -187,9 +187,18 @@ class DetailsActivity : AppCompatActivity() {
 
     private fun deleteDocument() {
 
-        firebaseViewModel.deleteImageFromStorage(imageUrl)
-        firebaseViewModel.deleteDocument(id)
-        finish()
+        val doc = firebaseViewModel.getSpecificDocumentReference(id)
+        doc.addSnapshotListener { snapshot, _ ->
+            snapshot?.data?.let {
+                firebaseViewModel.deleteImageFromStorage(
+                    it["image_url"]
+                        .toString()
+                )
+            }
+        }
+        firebaseViewModel.deleteDocument(id).addOnCompleteListener {
+            finish()
+        }
 
     }
 
