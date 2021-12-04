@@ -33,6 +33,7 @@ import kotlin.math.roundToInt
 class DetailsActivity : AppCompatActivity() {
 
     private lateinit var id: String
+    private lateinit var imageUrl: String
     private val firebaseViewModel: FirebaseViewModel = FirebaseViewModel()
     private val utilFunctions: UtilFunctions = UtilFunctions()
     private var editMode: Boolean = false
@@ -73,6 +74,7 @@ class DetailsActivity : AppCompatActivity() {
                 slider.thumbRadius = (10 + 7 * documentDTO.sentimentMagnitude.toFloat()).roundToInt()
             }
 
+            imageUrl = documentDTO.image_url
             val imageView = findViewById<ImageView>(R.id.iv_photo_details)
             Glide.with(baseContext)
                 .load(documentDTO.image_url)
@@ -170,7 +172,7 @@ class DetailsActivity : AppCompatActivity() {
         builder.setMessage(R.string.delete_dialog_message)
         builder.apply {
             setPositiveButton(R.string.delete_dialog_action_ok) { _, _ ->
-                deleteDocument(id)
+                deleteDocument()
                 Toast.makeText(
                     applicationContext,
                     "Document deleted",
@@ -183,16 +185,9 @@ class DetailsActivity : AppCompatActivity() {
         builder.create().show()
     }
 
-    private fun deleteDocument(id: String) {
-        val doc = firebaseViewModel.getSpecificDocumentReference(id)
-        doc.addSnapshotListener { snapshot, _ ->
-            snapshot?.data?.let {
-                firebaseViewModel.deleteImageFromStorage(
-                    it["image_url"]
-                        .toString()
-                )
-            }
-        }
+    private fun deleteDocument() {
+
+        firebaseViewModel.deleteImageFromStorage(imageUrl)
         firebaseViewModel.deleteDocument(id).addOnCompleteListener {
             finish()
         }
