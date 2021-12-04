@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.MetadataChanges
 import com.sidm.easyscan.data.model.DocumentDTO
 import java.sql.Timestamp
@@ -136,15 +135,12 @@ class FirebaseViewModel: ViewModel() {
         firebaseRepository.updateDocument(tempDoc)
     }
 
-    fun getSpecificDocumentReference(id:String): DocumentReference{
-        return firebaseRepository.getDocuments().document(id)
-    }
-
     fun deleteImageFromStorage(imageURL: String){
         firebaseRepository.deleteImageFromStorage(imageURL)
     }
 
     fun deleteDocument(id: String): Task<Void> {
+
         return firebaseRepository.deleteDocument(id)
     }
 

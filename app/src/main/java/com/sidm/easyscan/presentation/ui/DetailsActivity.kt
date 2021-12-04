@@ -188,9 +188,9 @@ class DetailsActivity : AppCompatActivity() {
     private fun deleteDocument() {
 
         firebaseViewModel.deleteImageFromStorage(imageUrl)
-        firebaseViewModel.deleteDocument(id).addOnCompleteListener {
-            finish()
-        }
+        firebaseViewModel.deleteDocument(id)
+        finish()
+
     }
 
     private fun zoomImage(imageResUrl: String) {
