@@ -34,6 +34,9 @@
     <string name="description_logo">logo</string>
     <string name="toast_clipboard">Text copied to clipboard</string>
     <string name="Toast_ImageProcessing">No text was found</string>
+    <string name="Online_ImageProcessing_Error">Occured an error during recognition process. Please try again later.</string>
+    <string name="Details_Saved">Changes saved successfully!</string>
+    <string name="Details_NoChanges">No changes detected</string>
 
 
 </resources>

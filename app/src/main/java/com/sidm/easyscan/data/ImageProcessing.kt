@@ -11,6 +11,7 @@ import android.widget.Toast
 import com.google.android.gms.tasks.Task
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.gson.*
+import com.google.gson.JsonParser.parseString
 import com.google.mlkit.nl.languageid.LanguageIdentification
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
@@ -46,18 +47,23 @@ class ImageProcessing {
         request.add("features", features)
 
         var processedText: String?
-        var nLines = 0
-        var nWords = 0
-
         analyzeImage(request.toString())
             .addOnFailureListener { exception ->
                 Log.d("gcloud functions", exception.message.toString())
             }
             .addOnCompleteListener { task ->
+                val test = parseString(task.result.asString)
+                processedText = test.asJsonObject["processed_text"].asString
                 if (!task.isSuccessful) {
-                    Log.d("gcloud functions", task.result.toString())
+                    Toast.makeText(
+                        view.context,
+                        context.getString(R.string.Online_ImageProcessing_Error),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 } else {
-                    if (!task.result.asJsonArray[0].asJsonObject.has("fullTextAnnotation")) {
+                    val nLines = test.asJsonObject["nLines"].asString
+                    val nWords = test.asJsonObject["nWords"].asString
+                    if (processedText == null) {
                         Toast.makeText(
                             view.context,
                             context.getString(R.string.Toast_ImageProcessing),
@@ -65,27 +71,14 @@ class ImageProcessing {
                         ).show()
                         utilFunctions.toggleProgressCircle(view)
                     } else {
-                        val annotation =
-                            task.result.asJsonArray[0].asJsonObject["fullTextAnnotation"].asJsonObject
-                        processedText = annotation["text"].asString
-                        for (page in annotation["pages"].asJsonArray) {
-                            for (block in page.asJsonObject["blocks"].asJsonArray) {
-                                for (para in block.asJsonObject["paragraphs"].asJsonArray) {
-                                    nLines += 1
-                                    for (word in para.asJsonObject["words"].asJsonArray) {
-                                        nWords += 1
-                                    }
-                                }
-                            }
-                        }
-                        
-                        languageIdentification.identifyLanguage(processedText.toString())
+
+                        languageIdentification.identifyLanguage(processedText!!)
                             .addOnSuccessListener { lang ->
                                 firebaseViewModel.createDocument(
                                     imageUri,
                                     processedText!!,
-                                    nLines.toString(),
-                                    nWords.toString(),
+                                    nLines,
+                                    nWords,
                                     lang,
                                     utilFunctions.isOnline(context)
                                 )
@@ -153,7 +146,7 @@ class ImageProcessing {
             .call(requestJson)
             .continueWith { task ->
                 val result = task.result.data
-                JsonParser.parseString(Gson().toJson(result))
+                parseString(Gson().toJson(result))
             }
     }
 

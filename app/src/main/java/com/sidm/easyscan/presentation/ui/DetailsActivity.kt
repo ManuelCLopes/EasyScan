@@ -2,7 +2,6 @@ package com.sidm.easyscan.presentation.ui
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -25,8 +24,6 @@ import com.google.android.material.slider.Slider
 import com.sidm.easyscan.R
 import com.sidm.easyscan.data.FirebaseViewModel
 import com.sidm.easyscan.util.UtilFunctions
-import java.math.BigDecimal
-import java.math.RoundingMode
 import kotlin.math.roundToInt
 
 
@@ -60,8 +57,7 @@ class DetailsActivity : AppCompatActivity() {
                 findViewById<CardView>(R.id.card_classification).visibility = View.GONE
             }else{
                 findViewById<CardView>(R.id.card_classification).visibility = View.VISIBLE
-                findViewById<TextView>(R.id.tv_classification)?.text =
-                    separateClassificationCategories(documentDTO.classification)
+                findViewById<TextView>(R.id.tv_classification)?.text = documentDTO.classification
             }
 
             val slider =findViewById<Slider>(R.id.slider)
@@ -103,9 +99,24 @@ class DetailsActivity : AppCompatActivity() {
             }
             fabEdit.setOnClickListener {
                 if(editMode){
-                    documentDTO.processed_text = et.text.toString()
-                    firebaseViewModel.updateDocument(documentDTO)
-                    fabEdit.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_edit, null))
+                    if(documentDTO.processed_text == et.text.toString())
+                        Toast.makeText(applicationContext, getString(R.string.Details_NoChanges), Toast.LENGTH_LONG).show()
+                    else {
+                        documentDTO.processed_text = et.text.toString()
+                        firebaseViewModel.updateDocument(documentDTO)
+                        Toast.makeText(
+                            applicationContext,
+                            getString(R.string.Details_Saved),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                    fabEdit.setImageDrawable(
+                        ResourcesCompat.getDrawable(
+                            resources,
+                            R.drawable.ic_edit,
+                            null
+                        )
+                    )
                     tv.text = et.text
                     tv.visibility = View.VISIBLE
                     fabClose.visibility = View.GONE
@@ -113,8 +124,10 @@ class DetailsActivity : AppCompatActivity() {
                     copyIcon.visibility = View.VISIBLE
                     val imm: InputMethodManager =
                         getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                    imm.hideSoftInputFromWindow(findViewById<View>(android.R.id.content).windowToken, 0)
-                    Toast.makeText(applicationContext, "Content saved successfully!", Toast.LENGTH_LONG).show()
+                    imm.hideSoftInputFromWindow(
+                        findViewById<View>(android.R.id.content).windowToken,
+                        0
+                    )
                 }else{
                     fabEdit.setImageDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_check, null))
                     et.setText(tv.text)
@@ -224,32 +237,6 @@ class DetailsActivity : AppCompatActivity() {
         }
         findViewById<FloatingActionButton>(R.id.fab_edit).visibility = View.GONE
         expandedImageView.visibility = View.VISIBLE
-    }
-
-    private fun separateClassificationCategories(classificationOriginal: String): String{
-        var text = classificationOriginal
-        text = text.replace("[{", "")
-        text = text.replace("{", "")
-        text = text.replace("}", "")
-        text = text.replace("]", "")
-        text = text.replace("}]", "")
-        text = text.replace("/", "")
-        Log.d("category", text)
-
-        val result: List<String> = text.split(",").map { it.trim() }
-        var res: String
-        var percentage = ""
-        var resultString = ""
-        for (i in result){
-            val item: List<String> = i.split("=").map { it.trim() }
-            if(item[0] == "confidence") {
-                percentage = (BigDecimal(item[1].toDouble()).setScale(4, RoundingMode.HALF_EVEN).toFloat() * 100).toString() + "%"
-            }else{
-                res = item[1] + ": " + percentage
-                resultString += if(resultString!=""){"\n"}else{""} + res
-            }
-        }
-        return resultString
     }
 
     private fun <T> LiveData<T>.observeOnce(lifecycleOwner: LifecycleOwner, observer: Observer<T>) {
